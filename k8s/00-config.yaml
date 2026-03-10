@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coffee-config
+  namespace: coffee-finder
+data:
+  DB_HOST: "db"
+  DB_PORT: "5432"
+  DB_NAME: "coffeedb"
+  FLASK_APP: "app"
+  PYTHONPATH: "/app"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: coffee-secrets
+  namespace: coffee-finder
+type: Opaque
+stringData:
+  POSTGRES_USER: "user"
+  POSTGRES_PASSWORD: "password"
+  DATABASE_URL: "postgresql://user:password@db:5432/coffeedb"
