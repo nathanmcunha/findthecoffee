@@ -16,39 +16,40 @@ services:
       timeout: 5s
       retries: 5
 
-  web:
-    build: .
-    container_name: coffee_web
+  backend:
+    build: ./backend
+    container_name: coffee_backend
     ports:
-      - "5000:5000"
+      - "5001:5000"
     environment:
+
       DATABASE_URL: postgresql://user:password@db:5432/coffeedb
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: user
-      DB_NAME: coffeedb
       PORT: 5000
-      PYTHONPATH: /app
-      FLASK_APP: src.app
     depends_on:
       db:
         condition: service_healthy
 
+  frontend:
+    image: nginx:alpine
+    container_name: coffee_frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+
   seed:
-    build: .
+    build: ./backend
     container_name: coffee_seed
     environment:
       DATABASE_URL: postgresql://user:password@db:5432/coffeedb
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: user
-      DB_NAME: coffeedb
       PYTHONPATH: /app
-      FLASK_APP: src.app
+    volumes:
+      - ./backend:/app
     depends_on:
       db:
         condition: service_healthy
-    command: ["python", "src/seed_data.py"]
+    command: seed_data.py
+    entrypoint: ["python"]
 
 volumes:
   postgres_data:

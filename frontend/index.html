@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find the Coffee</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>Find the Coffee</h1>
+        <p>Discover specialty coffee around you.</p>
+    </header>
+
+    <main class="grid-container">
+        <aside class="sidebar">
+            <h2>Filters</h2>
+            
+            <div class="filter-group">
+                <label for="roast-filter">Roast Level</label>
+                <select id="roast-filter">
+                    <option value="">All Roasts</option>
+                    <option value="Light">Light</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Dark">Dark</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="origin-filter">Origin</label>
+                <input type="text" id="origin-filter" placeholder="e.g. Ethiopia, Colombia">
+            </div>
+
+            <button id="apply-filters" class="btn">Apply Filters</button>
+            <button id="clear-filters" class="btn btn-outline">Clear</button>
+        </aside>
+
+        <section class="content">
+            <div id="map" class="map-container"></div>
+            
+            <div class="results-header">
+                <h2>Results</h2>
+                <span id="results-count">0 found</span>
+            </div>
+            
+            <div id="results-list" class="results-list">
+                <div class="loading">Loading coffee data...</div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

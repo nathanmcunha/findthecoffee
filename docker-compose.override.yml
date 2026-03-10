@@ -1,20 +1,19 @@
 services:
-  web:
-    userns_mode: keep-id
+  backend:
     volumes:
-      - .:/app:z
+      - ./backend:/app
     environment:
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://user:password@db:5432/coffeedb
-      - PYTHONPATH=/app
-      - FLASK_APP=src.app
+      FLASK_ENV: development
+      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      PYTHONPATH: /app
+      FLASK_APP: app
     command: python -m flask run --host=0.0.0.0 --port=5000 --debug
 
-  seed:
-    userns_mode: keep-id
+  frontend:
     volumes:
-      - .:/app:z
+      - ./frontend:/usr/share/nginx/html
+
+  seed:
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/coffeedb
-      - PYTHONPATH=/app
-      - FLASK_APP=src.app
+      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      PYTHONPATH: /app

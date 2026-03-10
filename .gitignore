@@ -25,3 +25,4 @@ venv/
 
 # Postgres data (handled by Docker volume)
 postgres_data/
+\#docker-compose.yml\#

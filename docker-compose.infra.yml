@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: coffee_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: coffeedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - coffee-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d coffeedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  coffee-network:
+    name: coffee-network
+
+volumes:
+  postgres_data:
