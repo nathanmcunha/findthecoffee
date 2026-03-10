@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: coffee_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: coffeedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d coffeedb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: coffee_web
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_NAME: coffeedb
+      PORT: 5000
+      PYTHONPATH: /app
+      FLASK_APP: src.app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  seed:
+    build: .
+    container_name: coffee_seed
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_NAME: coffeedb
+      PYTHONPATH: /app
+      FLASK_APP: src.app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "src/seed_data.py"]
+
+volumes:
+  postgres_data:

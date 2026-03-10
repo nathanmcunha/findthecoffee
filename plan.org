@@ -1,0 +1,39 @@
+#+TITLE: Project Plan: Coffee Finder (Docker & K8s Edition)
+#+SEQ_TODO: TODO(t) NEXT(n) IN-PROGRESS(i) | DONE(d) CANCELLED(c)
+
+* 🏗️ Phase 1: Containerization & Database Foundation
+** TODO Create multi-stage Dockerfile for the Flask application 🐳
+** TODO Configure Docker Compose for local orchestration (App + Postgres)
+** TODO Define persistent volumes for PostgreSQL data in Docker
+** TODO Implement Database connection class using SQLAlchemy Engine (Connection Pool)
+** TODO Execute initial SQL schema (DDL) using Raw SQL scripts
+
+* 🗄️ Phase 2: Data Access Layer (DAO/Repository Pattern)
+** TODO Create Cafe Repository with Raw SQL (CRUD operations)
+** TODO Create Coffee Bean Repository for variety and sensory notes
+** TODO Implement SQL JOIN queries to associate Beans with Cafes
+** TODO Optimize queries using JSON_AGG for efficient frontend delivery
+
+* 🌐 Phase 3: Backend & API Development
+** TODO Set up Flask base directory structure and routing
+** TODO Create JSON API endpoints for cafes and beans list
+** TODO Implement search filters via URL query parameters
+** TODO Configure environment variables for DB credentials (12-factor app)
+
+* 🎨 Phase 4: Frontend & UI (Aeroprecipe Style)
+** TODO Design minimalist CSS grid layout based on reference site
+** TODO Implement jQuery AJAX calls to fetch data without page refresh ⚡
+** TODO Build dynamic filtering logic (Region, Roast, Process) using jQuery
+** TODO Integrate Leaflet.js for the interactive map view
+
+* ☸️ Phase 5: Kubernetes Orchestration
+** TODO Create K8s Deployment and Service manifests for the Flask app
+** TODO Configure a StatefulSet or Deployment for the PostgreSQL instance
+** TODO Manage sensitive data (DB passwords) using K8s Secrets
+** TODO Implement ConfigMaps for non-sensitive environment configurations
+** TODO Test auto-healing and scaling within a local K8s cluster (Minikube/Kind)
+
+* 🚀 Phase 6: Polish & Portfolio Deployment
+** TODO Perform SQL query performance audit and indexing
+** TODO Document architectural decisions and K8s workflow in README.md
+** TODO Final deployment to a cloud provider (e.g., Railway, Render, or GCP)

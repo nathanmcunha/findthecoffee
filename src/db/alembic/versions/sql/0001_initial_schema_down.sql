@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS coffee_beans;
+DROP TABLE IF EXISTS cafes;

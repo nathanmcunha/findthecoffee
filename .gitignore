@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+
+# Environment
+.env
+.evn
+
+# Editor/IDE
+*~
+.dir-locals.el
+.vscode/
+.idea/
+
+# Agent transcripts
+.agent-shell/
+.gemini/
+
+# OS
+.DS_Store
+
+# Postgres data (handled by Docker volume)
+postgres_data/
