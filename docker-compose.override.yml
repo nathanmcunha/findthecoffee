@@ -1,19 +1,35 @@
+# Local Development Override (Hot-Reloading & Live Volumes)
 services:
   backend:
     volumes:
-      - ./backend:/app
+      - ./backend:/app:z
     environment:
-      FLASK_ENV: development
-      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
-      PYTHONPATH: /app
-      FLASK_APP: app
+      FLASK_DEBUG: "1"
+      FLASK_APP: "app.py"
+    # Overriding command to ensure debug mode is forced on
     command: python -m flask run --host=0.0.0.0 --port=5000 --debug
+    depends_on:
+      seed:
+        condition: service_completed_successfully
 
   frontend:
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend:/usr/share/nginx/html:z
+
+  migrate:
+    volumes:
+      - ./backend:/app:z
 
   seed:
+    build: ./backend
+    container_name: coffee_seed
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      DATABASE_URL: postgresql+psycopg://user:password@db:5432/coffeedb
       PYTHONPATH: /app
+    volumes:
+      - ./backend:/app:z
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: seed_data.py
+    entrypoint: ["python"]

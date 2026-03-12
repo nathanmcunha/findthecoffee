@@ -1,3 +1,4 @@
+# Base Docker Compose (Production/Standard)
 services:
   db:
     image: postgres:16-alpine
@@ -16,40 +17,40 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build: ./backend
+    container_name: coffee_migrate
+    environment:
+      DATABASE_URL: postgresql+psycopg://user:password@db:5432/coffeedb
+      PYTHONPATH: /app
+    depends_on:
+      db:
+        condition: service_healthy
+    command: db/migrate.py
+    entrypoint: ["python"]
+
   backend:
     build: ./backend
     container_name: coffee_backend
     ports:
-      - "5001:5000"
+      - "5000:5000"
     environment:
-
-      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
+      DATABASE_URL: postgresql+psycopg://user:password@db:5432/coffeedb
       PORT: 5000
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   frontend:
     image: nginx:alpine
     container_name: coffee_frontend
     ports:
       - "8080:80"
-    volumes:
-      - ./frontend:/usr/share/nginx/html
-
-  seed:
-    build: ./backend
-    container_name: coffee_seed
-    environment:
-      DATABASE_URL: postgresql://user:password@db:5432/coffeedb
-      PYTHONPATH: /app
-    volumes:
-      - ./backend:/app
     depends_on:
-      db:
-        condition: service_healthy
-    command: seed_data.py
-    entrypoint: ["python"]
+      - backend
 
 volumes:
   postgres_data:
+
