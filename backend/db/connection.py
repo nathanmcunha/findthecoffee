@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import create_engine, text, Engine, CursorResult
-from typing import Any, Optional
+from typing import Any
 
 
 class Database:
@@ -20,7 +20,7 @@ class Database:
             cls._instance.engine = create_engine(url)
         return cls._instance
 
-    def execute(self, query: str, params: Optional[dict[str, Any]] = None) -> CursorResult[Any]:
+    def execute(self, query: str, params: dict[str, Any] | None = None) -> CursorResult[Any]:
         """Wrapper for raw SQL execution, similar to JdbcTemplate.query()."""
         with self.engine.connect() as conn:
             result = conn.execute(text(query), params or {})

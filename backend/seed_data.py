@@ -1,76 +1,90 @@
 import os
 from dotenv import load_dotenv
-from db.repository import CafeRepository, CoffeeBeanRepository
+from db.repository import CafeRepository, CoffeeBeanRepository, RoasterRepository
 
 # Load environment variables (ensure DATABASE_URL is set)
 load_dotenv()
 
+def clean_database():
+    """Wipes all tables to ensure a clean start for the new schema."""
+    db = RoasterRepository().db
+    print("🧹 Cleaning database...")
+    queries = [
+        "TRUNCATE TABLE cafe_inventory CASCADE",
+        "TRUNCATE TABLE coffee_beans CASCADE",
+        "TRUNCATE TABLE cafes CASCADE",
+        "TRUNCATE TABLE roasters CASCADE",
+    ]
+    for q in queries:
+        db.execute(q)
+    print("✅ Database cleaned.")
+
 def seed():
+    clean_database()
     cafe_repo = CafeRepository()
     bean_repo = CoffeeBeanRepository()
+    roaster_repo = RoasterRepository()
     
-    # Cafes with their coffee beans
-    seed_data = [
-        {
-            "cafe": {"name": "Central Perk", "location": "Greenwich Village, NY"},
-            "beans": [
-                {"name": "House Blend", "roast_level": "Medium", "origin": "Colombia"},
-                {"name": "Dark Roast Special", "roast_level": "Dark", "origin": "Brazil"},
-            ]
-        },
-        {
-            "cafe": {"name": "Luke's Diner", "location": "Stars Hollow, CT"},
-            "beans": [
-                {"name": "Morning Kick", "roast_level": "Dark", "origin": "Sumatra"},
-            ]
-        },
-        {
-            "cafe": {"name": "Blue Bottle", "location": "Oakland, CA"},
-            "beans": [
-                {"name": "Hayes Valley Espresso", "roast_level": "Medium", "origin": "Ethiopia/Uganda"},
-                {"name": "Giant Steps", "roast_level": "Medium", "origin": "Latin America"},
-                {"name": "Bella Donovan", "roast_level": "Medium-Dark", "origin": "Africa/Indonesia"},
-            ]
-        },
-        {
-            "cafe": {"name": "Stumptown Coffee", "location": "Portland, OR"},
-            "beans": [
-                {"name": "Hair Bender", "roast_level": "Medium", "origin": "Latin America/Africa"},
-                {"name": "Holler Mountain", "roast_level": "Medium", "origin": "Colombia/Honduras"},
-            ]
-        },
-        {
-            "cafe": {"name": "Intelligentsia", "location": "Chicago, IL"},
-            "beans": [
-                {"name": "Black Cat Classic", "roast_level": "Medium", "origin": "Brazil/Colombia"},
-                {"name": "House Espresso", "roast_level": "Light-Medium", "origin": "Ethiopia"},
-            ]
-        },
+    print("🌱 Seeding database with Roaster-centric data...")
+
+    # 1. Create Roasters
+    roasters_data = [
+        {"name": "Five Roasters", "website": "https://fiveroasters.com.br/", "location": "Brazil"},
+        {"name": "Tocaya", "website": "https://tocaya.com.br/", "location": "Brazil"},
+        {"name": "Blue Bottle", "website": "https://bluebottlecoffee.com", "location": "USA"},
     ]
     
-    print("🌱 Seeding database...")
+    roaster_ids = {}
+    for r in roasters_data:
+        rid = roaster_repo.create(r["name"], r["website"], r["location"])
+        roaster_ids[r["name"]] = rid
+        print(f"🏭 Created Roaster: {r['name']} (ID: {rid})")
+
+    # 2. Create Beans linked to Roasters
+    beans_data = [
+        {"name": "Bourbon Amarelo", "roaster": "Tocaya", "roast": "Medium", "origin": "Brazil"},
+        {"name": "Catuaí Vermelho", "roaster": "Tocaya", "roast": "Light", "origin": "Brazil"},
+        {"name": "Five Blend", "roaster": "Five Roasters", "roast": "Medium-Dark", "origin": "Brazil/Ethiopia"},
+        {"name": "Hayes Valley Espresso", "roaster": "Blue Bottle", "roast": "Medium", "origin": "Multi"},
+    ]
     
-    for entry in seed_data:
-        cafe = entry["cafe"]
-        try:
-            cafe_id = cafe_repo.create(cafe["name"], cafe.get("location"))
-            print(f"☕ Created cafe: {cafe['name']} (ID: {cafe_id})")
-            
-            for bean in entry.get("beans", []):
-                bean_id = bean_repo.create(
-                    name=bean["name"],
-                    cafe_id=cafe_id,
-                    roast_level=bean.get("roast_level"),
-                    origin=bean.get("origin"),
-                )
-                print(f"   🫘 Added bean: {bean['name']} (ID: {bean_id})")
-        except Exception as e:
-            print(f"❌ Failed to create {cafe['name']}: {e}")
+    bean_ids = {}
+    for b in beans_data:
+        bid = bean_repo.create(
+            name=b["name"],
+            roaster_id=roaster_ids[b["roaster"]],
+            roast_level=b["roast"],
+            origin=b["origin"]
+        )
+        bean_ids[b["name"]] = bid
+        print(f"🫘 Created Bean: {b['name']} by {b['roaster']} (ID: {bid})")
+
+    # 3. Create Cafes and their Inventory
+    cafes_data = [
+        {
+            "name": "Specialty Coffee House", 
+            "location": "São Paulo, SP",
+            "inventory": ["Bourbon Amarelo", "Five Blend"]
+        },
+        {
+            "name": "The Minimalist Brew", 
+            "location": "Curitiba, PR",
+            "inventory": ["Catuaí Vermelho", "Five Blend", "Hayes Valley Espresso"]
+        }
+    ]
+
+    for c in cafes_data:
+        cid = cafe_repo.create(c["name"], c["location"])
+        print(f"☕ Created Cafe: {c['name']} (ID: {cid})")
+        
+        for bean_name in c["inventory"]:
+            cafe_repo.add_to_inventory(cid, bean_ids[bean_name])
+            print(f"   📦 Linked {bean_name} to inventory")
 
     print("\n✨ Seeding complete!")
 
 if __name__ == "__main__":
     if not os.getenv("DATABASE_URL"):
-        os.environ["DATABASE_URL"] = "postgresql://user:password@localhost:5432/coffeedb"
+        os.environ["DATABASE_URL"] = "postgresql+psycopg://user:password@localhost:5432/coffeedb"
     
     seed()
