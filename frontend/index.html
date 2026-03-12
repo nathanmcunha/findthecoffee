@@ -21,8 +21,21 @@
 
     <main class="grid-container">
         <aside class="sidebar">
-            <h2>Filters</h2>
+            <h2>Discovery</h2>
             
+            <div class="filter-group">
+               <label for="global-search">Smart Search</label>
+                <input type="text" id="global-search" placeholder="Search cafe, roaster, or bean...">
+            </div>
+
+            <div class="filter-group">
+                <label for="roaster-filter">Roaster</label>
+                <select id="roaster-filter">
+                    <option value="">All Roasters</option>
+                    <!-- Will be populated dynamically -->
+                </select>
+            </div>
+
             <div class="filter-group">
                 <label for="roast-filter">Roast Level</label>
                 <select id="roast-filter">
@@ -56,7 +69,6 @@
         </section>
     </main>
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
 </body>

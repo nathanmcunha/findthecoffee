@@ -161,13 +161,24 @@ body {
 
 .bean-tag {
     display: inline-block;
-    background: #f0f0f0;
-    padding: 0.3rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
+    background: #fdfaf7;
+    border: 1px solid #e9dcc9;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
-    color: #444;
+    color: var(--accent-color);
+    line-height: 1.4;
+}
+
+.inventory-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
 }
 
 @media (max-width: 768px) {
