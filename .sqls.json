@@ -1,0 +1,9 @@
+{
+  "sqls": {
+    "connections": [{
+      "alias": "coffee-db",
+      "driver": "postgresql",
+      "dataSourceName": "${DATABASE_URL}"
+    }]
+  }
+}

@@ -1,0 +1,34 @@
+[tools]
+python = "3.12"
+
+[env]
+_.python.venv = ".venv"
+DATABASE_URL = "postgresql+psycopg://user:password@localhost:5432/coffeedb"
+
+[tasks."up:infra"]
+description = "Start only the infrastructure (database)"
+run = "docker compose -f docker-compose.infra.yml up -d"
+
+[tasks."up:backend"]
+description = "Start the backend API with hot-reload"
+depends = ["up:infra"]
+run = "PYTHONPATH=backend python backend/main.py"
+
+[tasks."up:frontend"]
+description = "Serve the frontend static files"
+run = "python -m http.server --directory frontend 8080"
+
+[tasks.migrate]
+description = "Run database migrations"
+depends = ["up:infra"]
+run = "PYTHONPATH=backend python backend/db/migrate.py"
+
+[tasks.test]
+description = "Run pytest suite"
+depends = ["up:infra"]
+run = "PYTHONPATH=backend python -m pytest backend/tests"
+
+[tasks.dev]
+description = "Run backend and frontend in parallel"
+depends = ["up:infra"]
+run = "mise run up:backend & mise run up:frontend & wait"

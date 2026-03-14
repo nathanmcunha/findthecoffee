@@ -10,7 +10,8 @@ venv/
 .env
 .evn
 
-# Editor/IDE
+# Emacs / Planning
+*.org
 *~
 .dir-locals.el
 .vscode/
@@ -26,3 +27,5 @@ venv/
 # Postgres data (handled by Docker volume)
 postgres_data/
 \#docker-compose.yml\#
+
+gha-creds-*.json
