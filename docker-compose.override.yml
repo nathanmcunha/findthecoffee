@@ -5,9 +5,9 @@ services:
       - ./backend:/app:z
     environment:
       FLASK_DEBUG: "1"
-      FLASK_APP: "app.py"
+      FLASK_APP: "main.py"
     # Overriding command to ensure debug mode is forced on
-    command: python -m flask run --host=0.0.0.0 --port=5000 --debug
+    # command: python -m flask run --host=0.0.0.0 --port=5000 --debug
     depends_on:
       seed:
         condition: service_completed_successfully

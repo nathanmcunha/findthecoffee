@@ -42,7 +42,7 @@ RUN chown -R appuser:appuser /app && \
     chmod +x /app/docker-entrypoint.sh
 
 # Environment variables
-ENV FLASK_APP=app.py
+ENV FLASK_APP=main.py
 ENV PYTHONPATH=/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -52,4 +52,4 @@ EXPOSE 5000
 ENTRYPOINT ["/bin/sh", "/app/docker-entrypoint.sh"]
 
 # Default command
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

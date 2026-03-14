@@ -36,6 +36,17 @@ The application will be available at:
 - **Backend API:** http://localhost:5000/api
 - **Database:** localhost:5432
 
+## 🌿 Branching & Contribution
+
+This project follows a **GitHub Flow + Linear History** strategy, mimicking a **Gerrit-like** atomic review process:
+
+- **Main Branch:** The source of truth. Always deployable.
+- **Feature Branches:** Short-lived branches for specific tasks (e.g., `feat/add-roaster`, `fix/api-validation`).
+- **Atomic Commits:** We prefer **One Pull Request = One Commit**. Use `git commit --amend` to update your work rather than adding new commits.
+- **Linear History:** No "merge bubbles." All PRs are **Squashed and Merged** or **Rebased** onto `main`.
+
+Refer to [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed workflow instructions.
+
 ## 🧪 Search API Examples
 
 The global search (`/api/cafes?q=...`) uses the FTS index to search across:
