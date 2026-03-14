@@ -1,75 +1,183 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find the Coffee</title>
     
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config to match AeroPrecipe vibe -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            500: '#e05d3a', // AeroPrecipe uses a nice red/orange accent
+                            600: '#c24b2e',
+                            900: '#3a2b27',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-    <header class="header">
-        <h1>Find the Coffee</h1>
-        <p>Discover specialty coffee around you.</p>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom styles for things Tailwind is too verbose for */
+        body {
+            background-color: #f9fafb; /* Very light gray/off-white */
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        #map-container {
+            transition: all 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        
+        #map-container.open {
+            max-height: 500px;
+            opacity: 1;
+            margin-bottom: 2rem;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 1rem;
+            z-index: 10;
+        }
+
+        /* Gradient header for cards */
+        .card-header-gradient {
+            background: linear-gradient(135deg, #fdf8f6 0%, #f2e8e5 100%);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="coffee" class="text-brand-500"></i>
+                <h1 class="text-xl font-bold tracking-tight text-gray-900">Find the Coffee</h1>
+            </div>
+            <button id="toggle-map-btn" class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors bg-gray-50 px-4 py-2 rounded-full">
+                <i data-lucide="map" class="w-4 h-4"></i>
+                <span id="map-btn-text">Ver Mapa</span>
+            </button>
+        </div>
     </header>
 
-    <main class="grid-container">
-        <aside class="sidebar">
-            <h2>Discovery</h2>
-            
-            <div class="filter-group">
-               <label for="global-search">Smart Search</label>
-                <input type="text" id="global-search" placeholder="Search cafe, roaster, or bean...">
+    <!-- Hero Section -->
+    <section class="pt-16 pb-8 px-4 sm:px-6 lg:px-8 text-center max-w-3xl mx-auto">
+        <h2 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Descubra cafés especiais.</h2>
+        <p class="text-lg text-gray-500 mb-8">Busque por cafeterias, torrefações ou grãos específicos perto de você.</p>
+        
+        <!-- Large Search Bar -->
+        <div class="relative max-w-2xl mx-auto group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i data-lucide="search" class="w-5 h-5 text-gray-400 group-focus-within:text-brand-500 transition-colors"></i>
             </div>
+            <input type="text" id="global-search" 
+                class="block w-full pl-11 pr-4 py-4 bg-white border border-gray-200 rounded-2xl leading-5 bg-transparent placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all shadow-sm text-lg" 
+                placeholder="Ex: Bourbon Amarelo, Blue Bottle...">
+        </div>
+    </section>
 
-            <div class="filter-group">
-                <label for="roaster-filter">Roaster</label>
-                <select id="roaster-filter">
-                    <option value="">All Roasters</option>
-                    <!-- Will be populated dynamically -->
+    <!-- Filters (Pill Style) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-3 overflow-x-auto hide-scrollbar py-2">
+            
+            <div class="relative flex-shrink-0">
+                <select id="roaster-filter" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium cursor-pointer shadow-sm hover:border-gray-300 transition-colors">
+                    <option value="">Todas as Torrefações</option>
+                    <!-- Preenchido via JS -->
                 </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </div>
             </div>
 
-            <div class="filter-group">
-                <label for="roast-filter">Roast Level</label>
-                <select id="roast-filter">
-                    <option value="">All Roasts</option>
-                    <option value="Light">Light</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Dark">Dark</option>
+            <div class="relative flex-shrink-0">
+                <select id="roast-filter" class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium cursor-pointer shadow-sm hover:border-gray-300 transition-colors">
+                    <option value="">Qualquer Torra</option>
+                    <option value="Light">Clara (Light)</option>
+                    <option value="Medium">Média (Medium)</option>
+                    <option value="Dark">Escura (Dark)</option>
                 </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </div>
             </div>
 
-            <div class="filter-group">
-                <label for="origin-filter">Origin</label>
-                <input type="text" id="origin-filter" placeholder="e.g. Ethiopia, Colombia">
+            <div class="flex-shrink-0 relative">
+                <input type="text" id="origin-filter" placeholder="Origem (Ex: Brasil)" 
+                    class="bg-white border border-gray-200 text-gray-700 py-2 px-4 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium shadow-sm hover:border-gray-300 transition-colors w-40">
             </div>
 
-            <button id="apply-filters" class="btn">Apply Filters</button>
-            <button id="clear-filters" class="btn btn-outline">Clear</button>
-        </aside>
+            <button id="clear-filters" class="flex-shrink-0 flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 py-2 px-4 rounded-full transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i> Limpar
+            </button>
+        </div>
+    </section>
 
-        <section class="content">
-            <div id="map" class="map-container"></div>
-            
-            <div class="results-header">
-                <h2>Results</h2>
-                <span id="results-count">0 found</span>
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-16">
+        
+        <!-- Collapsible Map -->
+        <div id="map-container" class="w-full shadow-sm rounded-2xl bg-white p-2 border border-gray-100">
+            <div id="map"></div>
+        </div>
+
+        <!-- Results Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-900">Resultados</h3>
+            <span id="results-count" class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full">0 encontrados</span>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="results-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loading State -->
+            <div class="col-span-full flex justify-center py-12">
+                <div class="animate-pulse flex flex-col items-center">
+                    <i data-lucide="loader-2" class="w-8 h-8 text-brand-500 animate-spin mb-4"></i>
+                    <p class="text-gray-500 font-medium">Buscando as melhores opções...</p>
+                </div>
             </div>
-            
-            <div id="results-list" class="results-list">
-                <div class="loading">Loading coffee data...</div>
-            </div>
-        </section>
+        </div>
     </main>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    
 </body>
 </html>
