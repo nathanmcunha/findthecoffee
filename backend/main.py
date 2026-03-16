@@ -200,6 +200,9 @@ def add_to_inventory(cafe_id: int):
         data = request.get_json(silent=True) or {}
         inventory_data = CafeInventoryAdd.model_validate(data)
 
+        if not bean_repo.get_by_id(inventory_data.bean_id):
+            return jsonify({"error": "Coffee bean not found"}), 404
+
         cafe_repo.add_to_inventory(cafe_id, inventory_data.bean_id)
         return jsonify({"status": "success", "message": "Added to inventory"}), 200
     except ValidationError as e:

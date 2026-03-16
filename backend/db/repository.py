@@ -143,16 +143,16 @@ class CafeRepository:
             params["q_like"] = f"%{query_text}%"
             
             # Additional Filters (AND logic)
-            if roast_level:
+            if roast_level is not None:
                 sql_query += " AND b.roast_level = :roast_level"
                 params["roast_level"] = roast_level
-            if origin:
+            if origin is not None:
                 sql_query += " AND b.origin ILIKE :origin"
                 params["origin"] = f"%{origin}%"
-            if roaster_id:
+            if roaster_id is not None:
                 sql_query += " AND b.roaster_id = :roaster_id"
                 params["roaster_id"] = roaster_id
-            if cafe_name:
+            if cafe_name is not None:
                 sql_query += " AND c.name ILIKE :cafe_name"
                 params["cafe_name"] = f"%{cafe_name}%"
 
@@ -175,21 +175,21 @@ class CafeRepository:
                         '[]'::json
                     ) AS matching_beans
                 FROM cafes c
-                JOIN cafe_inventory i ON i.cafe_id = c.id
-                JOIN coffee_beans b ON i.bean_id = b.id
+                LEFT JOIN cafe_inventory i ON i.cafe_id = c.id
+                LEFT JOIN coffee_beans b ON i.bean_id = b.id
                 LEFT JOIN roasters r ON b.roaster_id = r.id
                 WHERE 1=1
             """
-            if roast_level:
+            if roast_level is not None:
                 sql_query += " AND b.roast_level = :roast_level"
                 params["roast_level"] = roast_level
-            if origin:
+            if origin is not None:
                 sql_query += " AND b.origin ILIKE :origin"
                 params["origin"] = f"%{origin}%"
-            if roaster_id:
+            if roaster_id is not None:
                 sql_query += " AND b.roaster_id = :roaster_id"
                 params["roaster_id"] = roaster_id
-            if cafe_name:
+            if cafe_name is not None:
                 sql_query += " AND c.name ILIKE :cafe_name"
                 params["cafe_name"] = f"%{cafe_name}%"
 
@@ -264,13 +264,13 @@ class CoffeeBeanRepository:
             WHERE 1=1
         """
         params = {}
-        if roast_level:
+        if roast_level is not None:
             query += " AND b.roast_level = :roast_level"
             params["roast_level"] = roast_level
-        if origin:
+        if origin is not None:
             query += " AND b.origin ILIKE :origin"
             params["origin"] = f"%{origin}%"
-        if roaster_id:
+        if roaster_id is not None:
             query += " AND b.roaster_id = :roaster_id"
             params["roaster_id"] = roaster_id
             
