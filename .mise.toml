@@ -4,6 +4,15 @@ python = "3.12"
 [env]
 _.python.venv = ".venv"
 DATABASE_URL = "postgresql+psycopg://user:password@localhost:5432/coffeedb"
+PYTHONPATH = "backend"
+
+[tasks.venv]
+description = "Recreate .venv and reinstall deps (run after mise upgrades Python)"
+run = """
+rm -rf .venv
+python -m venv .venv
+.venv/bin/pip install -r backend/requirements.txt
+"""
 
 [tasks."up:infra"]
 description = "Start only the infrastructure (database)"
@@ -12,7 +21,7 @@ run = "docker compose -f docker-compose.infra.yml up -d"
 [tasks."up:backend"]
 description = "Start the backend API with hot-reload"
 depends = ["up:infra"]
-run = "PYTHONPATH=backend python backend/main.py"
+run = "python backend/main.py"
 
  [tasks."tailwind:download"]
  description = "Download standalone Tailwind CLI library"
@@ -40,7 +49,7 @@ run = "PYTHONPATH=backend python backend/main.py"
 [tasks.test]
 description = "Run pytest suite"
 depends = ["up:infra"]
-run = "PYTHONPATH=backend python -m pytest backend/tests"
+run = "python -m pytest backend/tests"
 
 [tasks.dev]
 description = "Run backend and frontend in parallel"
