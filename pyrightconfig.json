@@ -1,9 +1,9 @@
 {
-  "venvPath": "/home/nathanmcunha/projects/findthecoffee",
+  "venvPath": ".",
   "venv": ".venv",
-  "pythonPath": "/home/nathanmcunha/projects/findthecoffee/.venv/bin/python",
-  "pythonVersion": "3.14",
+  "pythonVersion": "3.12",
   "typeCheckingMode": "strict",
   "autoSearchPaths": true,
-  "useLibraryCodeForTypes": true
+  "useLibraryCodeForTypes": true,
+  "extraPaths": ["backend"]
 }
