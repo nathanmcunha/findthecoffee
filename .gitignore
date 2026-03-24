@@ -29,3 +29,6 @@ postgres_data/
 \#docker-compose.yml\#
 
 gha-creds-*.json
+
+tailwindcss
+Locust_*.html
