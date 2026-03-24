@@ -14,14 +14,28 @@ description = "Start the backend API with hot-reload"
 depends = ["up:infra"]
 run = "PYTHONPATH=backend python backend/main.py"
 
-[tasks."up:frontend"]
-description = "Serve the frontend static files"
-run = "python -m http.server --directory frontend 8080"
+ [tasks."tailwind:download"]
+ description = "Download standalone Tailwind CLI library"
+ run = """
+ if [ ! -f frontend/tailwindcss ]; then
+     echo "Downloading Tailwind CLI..."
+     curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 -o frontend/tailwindcss
+     chmod +x frontend/tailwindcss
+ fi
+ """
 
-[tasks.migrate]
-description = "Run database migrations"
-depends = ["up:infra"]
-run = "PYTHONPATH=backend python backend/db/migrate.py"
+ [tasks."tailwind:watch"]
+ description = "Watch and compile Tailwind CSS"
+ depends = ["tailwind:download"]
+ run = "./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --watch"
+
+ [tasks."up:frontend"]
+ description = "Serve the frontend and compile CSS"
+ depends = ["tailwind:download"]
+ run = """
+ ./frontend/tailwindcss -i frontend/input.css -o frontend/style.css
+ python -m http.server --directory frontend 8080
+ """
 
 [tasks.test]
 description = "Run pytest suite"
@@ -30,5 +44,5 @@ run = "PYTHONPATH=backend python -m pytest backend/tests"
 
 [tasks.dev]
 description = "Run backend and frontend in parallel"
-depends = ["up:infra"]
-run = "mise run up:backend & mise run up:frontend & wait"
+depends = ["up:infra", "tailwind:download"]
+run = "mise run up:backend & mise run up:frontend & mise run tailwind:watch & wait"
