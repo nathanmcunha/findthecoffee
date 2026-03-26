@@ -3,173 +3,248 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Find the Coffee</title>
+    <title>Ache o Café | Specialty Coffee Discovery</title>
 
-    <!-- Google Fonts: Inter -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       crossorigin=""
     />
+
     <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="style.css" />
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet" />
   </head>
-  <body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col">
-    <!-- Navbar -->
-    <header class="bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
-      >
+
+  <body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-[0_20px_40px_rgba(39,19,16,0.06)]">
+      <div class="flex justify-between items-center px-6 sm:px-8 py-4 max-w-screen-2xl mx-auto w-full">
         <div class="flex items-center gap-2">
-          <i data-lucide="coffee" class="text-brand-500"></i>
-          <h1 class="text-xl font-bold tracking-tight text-gray-900">
-            Find the Coffee
-          </h1>
+          <span class="text-2xl font-headline tracking-tight text-primary">Ache o Café</span>
         </div>
+        <nav class="hidden md:flex items-center gap-8">
+          <a class="text-primary border-b-2 border-primary pb-1 font-headline italic transition-all duration-300 hover:opacity-80 cursor-pointer" href="#discover">Descobrir</a>
+          <a class="text-on-surface-variant hover:text-primary transition-all duration-300 cursor-pointer" href="#results-section">Cafeterias</a>
+        </nav>
         <button
           id="toggle-map-btn"
-          class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-brand-500 transition-colors bg-gray-50 px-4 py-2 rounded-full"
+          class="flex items-center gap-2 text-sm font-medium text-primary bg-surface-container px-4 py-2 rounded-full hover:bg-surface-container-high transition-colors"
         >
           <i data-lucide="map" class="w-4 h-4"></i>
           <span id="map-btn-text">Ver Mapa</span>
         </button>
       </div>
+      <div class="bg-outline-variant/15 h-px w-full"></div>
     </header>
 
-    <!-- Hero Section -->
-    <section
-      class="pt-16 pb-8 px-4 sm:px-6 lg:px-8 text-center max-w-3xl mx-auto"
-    >
-      <h2
-        class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4 tracking-tight"
-      >
-        Descubra cafés especiais.
-      </h2>
-      <p class="text-lg text-gray-500 mb-8">
-        Busque por cafeterias, torrefações ou grãos específicos perto de você.
-      </p>
+    <main class="flex-grow pt-24 pb-20 max-w-screen-2xl mx-auto px-6 sm:px-8 w-full">
 
-      <!-- Large Search Bar -->
-      <div class="relative max-w-2xl mx-auto group">
+      <!-- Hero -->
+      <section id="discover" class="py-12 md:py-20 flex flex-col items-center text-center">
+        <h1 class="font-headline text-5xl md:text-7xl text-primary mb-8 max-w-4xl leading-tight">
+          Encontre o café que <span class="serif-italic">fala</span> com você.
+        </h1>
+
+        <!-- Search Bar -->
+        <div class="w-full max-w-2xl relative group">
+          <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none">
+            <i data-lucide="search" class="text-primary w-6 h-6"></i>
+          </div>
+          <input
+            type="text"
+            id="global-search"
+            class="w-full bg-surface-container-lowest border-none ring-1 ring-outline-variant/40 rounded-full py-6 pl-16 pr-8 text-lg focus:ring-primary focus:ring-2 transition-all shadow-sm group-hover:shadow-md outline-none text-on-surface placeholder:text-on-surface-variant/60"
+            placeholder="Busque por origem, torrefação ou perfil de sabor..."
+          />
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex flex-wrap justify-center gap-3 mt-8">
+          <!-- Near Me -->
+          <button
+            id="near-me-btn"
+            class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-surface-container-lowest font-medium text-sm transition-transform active:scale-95 hover:opacity-90"
+          >
+            <i data-lucide="navigation" class="w-4 h-4"></i> Perto de Mim
+          </button>
+
+          <!-- Roaster Filter -->
+          <div class="relative">
+            <select id="roaster-filter" class="hidden">
+              <option value="">Todas as Torrefações</option>
+            </select>
+            <button
+              id="roaster-dropdown-btn"
+              type="button"
+              class="flex items-center justify-between gap-3 bg-surface-container-lowest border border-outline-variant/30 px-6 py-2.5 rounded-md text-left hover:border-primary transition-colors group"
+            >
+              <span id="roaster-dropdown-label" class="font-body text-sm text-primary">Todas as Torrefações</span>
+              <span id="roaster-chevron" class="material-symbols-outlined text-primary text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+            </button>
+            <div
+              id="roaster-dropdown-panel"
+              class="hidden absolute top-full left-0 w-full bg-surface-container-lowest border-x border-b border-primary rounded-b-md shadow-xl z-[1000] overflow-hidden"
+            >
+              <div class="flex flex-col max-h-48 overflow-y-auto" id="roaster-dropdown-list">
+                <button type="button" class="px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors" data-value="">Todas as Torrefações</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Roast Filter -->
+          <div class="relative">
+            <select id="roast-filter" class="hidden">
+              <option value="">Qualquer Torra</option>
+              <option value="Light">Clara (Light)</option>
+              <option value="Medium">Média (Medium)</option>
+              <option value="Dark">Escura (Dark)</option>
+            </select>
+            <button
+              id="roast-dropdown-btn"
+              type="button"
+              class="flex items-center justify-between gap-3 bg-surface-container-lowest border border-outline-variant/30 px-6 py-2.5 rounded-md text-left hover:border-primary transition-colors group"
+            >
+              <span id="roast-dropdown-label" class="font-body text-sm text-primary">Qualquer Torra</span>
+              <span id="roast-chevron" class="material-symbols-outlined text-primary text-[18px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+            </button>
+            <div
+              id="roast-dropdown-panel"
+              class="hidden absolute top-full left-0 w-full bg-surface-container-lowest border-x border-b border-primary rounded-b-md shadow-xl z-[1000] overflow-hidden"
+            >
+              <div class="flex flex-col">
+                <button type="button" class="px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10" data-value="">Qualquer Torra</button>
+                <button type="button" class="px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10" data-value="Light">Clara (Light)</button>
+                <button type="button" class="px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10" data-value="Medium">Média (Medium)</button>
+                <button type="button" class="px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors" data-value="Dark">Escura (Dark)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clear -->
+          <button
+            id="clear-filters"
+            class="flex items-center gap-1 px-6 py-2.5 rounded-full text-on-surface-variant font-medium text-sm hover:text-primary transition-colors"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i> Limpar
+          </button>
+        </div>
+
+        <!-- Hidden legacy filter inputs kept for script.js compatibility -->
+        <input type="hidden" id="origin-filter" />
+        <input type="hidden" id="cep-filter" />
+      </section>
+
+      <!-- Map -->
+      <section class="mb-16 rounded-xl overflow-hidden relative shadow-inner">
+        <div id="map-container" class="w-full">
+          <div id="map"></div>
+        </div>
+
+        <!-- Active area badge — shown when map is open -->
+        <div id="map-badge" class="hidden absolute top-6 left-6 bg-surface-container-lowest/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/20 shadow-sm flex items-center gap-2 z-[400]">
+          <div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+          <span id="map-badge-text" class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Resultados no mapa</span>
+        </div>
+      </section>
+
+      <!-- Results Section -->
+      <section id="results-section">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="font-headline text-3xl text-primary">Descobertas</h2>
+          <span
+            id="results-count"
+            class="text-sm font-medium text-on-surface-variant bg-surface-container px-4 py-1.5 rounded-full"
+          >0 encontrados</span>
+        </div>
+
         <div
-          class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+          id="results-list"
+          class="grid grid-cols-1 lg:grid-cols-2 gap-10"
         >
-          <i
-            data-lucide="search"
-            class="w-5 h-5 text-gray-400 group-focus-within:text-brand-500 transition-colors"
-          ></i>
+          <!-- Loading State -->
+          <div class="col-span-full flex flex-col items-center py-16 gap-4">
+            <div class="relative flex flex-col items-center">
+              <span class="material-symbols-outlined text-4xl text-primary" style="visibility:visible">coffee_maker</span>
+              <div class="w-0.5 bg-secondary/40 animate-drip my-1"></div>
+              <span class="material-symbols-outlined text-2xl text-primary" style="visibility:visible">local_cafe</span>
+            </div>
+            <p class="text-on-surface-variant font-medium">Buscando o melhor café para você...</p>
+          </div>
         </div>
-        <input
-          type="text"
-          id="global-search"
-          class="block w-full pl-11 pr-4 py-4 bg-white border border-gray-200 rounded-2xl leading-5 bg-transparent placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all shadow-sm text-lg"
-          placeholder="Busque por grãos, torrefações ou CEP (Ex: Bourbon, 01310-200)..."
-        />
-      </div>
-    </section>
+      </section>
 
-    <!-- Filters (Pill Style) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-      <div
-        class="flex flex-nowrap md:flex-wrap items-center justify-start md:justify-center gap-3 overflow-x-auto hide-scrollbar py-2"
-      >
-        <button
-          id="near-me-btn"
-          class="flex-shrink-0 flex items-center gap-2 text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 py-2 px-4 rounded-full transition-colors border border-brand-100"
-        >
-          <i data-lucide="map-pin" class="w-4 h-4"></i> Perto de Mim
-        </button>
-
-        <div class="relative flex-shrink-0">
-          <select
-            id="roaster-filter"
-            class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
-          >
-            <option value="">Todas as Torrefações</option>
-            <!-- Preenchido via JS -->
-          </select>
+      <!-- Journal / Editorial -->
+      <section id="journal" class="mt-24 grid grid-cols-1 md:grid-cols-3 grid-rows-2 gap-4 h-auto md:h-[600px]">
+        <div class="md:col-span-2 md:row-span-2 bg-primary rounded-xl overflow-hidden relative group min-h-[300px]">
           <div
-            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"
-          >
-            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            class="absolute inset-0 bg-cover bg-center opacity-60 transition-transform duration-1000 group-hover:scale-110"
+            style="background-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=80');"
+          ></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-primary/90 to-transparent p-10 flex flex-col justify-end">
+            <span class="text-surface-container-lowest/70 text-sm font-bold tracking-widest uppercase mb-4">Editorial</span>
+            <h2 class="text-surface-container-lowest text-4xl font-headline mb-4 max-w-lg leading-tight">A Arte do Bloom: por que seu café precisa respirar.</h2>
+            <button class="w-fit px-8 py-3 bg-surface-container-lowest text-primary rounded-lg font-bold transition-transform active:scale-95 hover:opacity-90">Ler Artigo</button>
           </div>
         </div>
 
-        <div class="relative flex-shrink-0">
-          <select
-            id="roast-filter"
-            class="appearance-none bg-white border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm font-medium cursor-pointer shadow-sm hover:border-gray-300 transition-colors"
-          >
-            <option value="">Qualquer Torra</option>
-            <option value="Light">Clara (Light)</option>
-            <option value="Medium">Média (Medium)</option>
-            <option value="Dark">Escura (Dark)</option>
-          </select>
-          <div
-            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500"
-          >
-            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        <div class="bg-secondary-container rounded-xl p-8 flex flex-col justify-between overflow-hidden relative group cursor-pointer min-h-[180px]">
+          <div class="relative z-10">
+            <h3 class="text-primary font-headline text-2xl mb-2">Guia de Preparo</h3>
+            <p class="text-on-secondary-container/80 text-sm">Domine a técnica V60 para maior clareza na xícara.</p>
           </div>
+          <i data-lucide="timer" class="text-primary/10 w-32 h-32 absolute -right-4 -bottom-4 transition-transform group-hover:scale-110"></i>
         </div>
 
-        <button
-          id="clear-filters"
-          class="flex-shrink-0 flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 py-2 px-4 rounded-full transition-colors"
-        >
-          <i data-lucide="x" class="w-4 h-4"></i> Limpar
-        </button>
-      </div>
-    </section>
-
-    <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-16">
-      <!-- Collapsible Map -->
-      <div
-        id="map-container"
-        class="w-full shadow-sm rounded-2xl bg-white p-2 border border-gray-100"
-      >
-        <div id="map"></div>
-      </div>
-
-      <!-- Results Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-gray-900">Resultados</h3>
-        <span
-          id="results-count"
-          class="text-sm font-medium text-gray-500 bg-gray-100 px-3 py-1 rounded-full"
-          >0 encontrados</span
-        >
-      </div>
-
-      <!-- Results Grid -->
-      <div
-        id="results-list"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-      >
-        <!-- Loading State -->
-        <div class="col-span-full flex justify-center py-12">
-          <div class="animate-pulse flex flex-col items-center">
-            <i
-              data-lucide="loader-2"
-              class="w-8 h-8 text-brand-500 animate-spin mb-4"
-            ></i>
-            <p class="text-gray-500 font-medium">
-              Buscando as melhores opções...
-            </p>
+        <div class="bg-tertiary-fixed rounded-xl p-8 flex flex-col justify-between overflow-hidden relative group cursor-pointer min-h-[180px]">
+          <div class="relative z-10">
+            <h3 class="text-primary font-headline text-2xl mb-2">Viagens de Origem</h3>
+            <p class="text-on-tertiary-fixed-variant/80 text-sm">Junte-se a nós em Sidamo neste novembro.</p>
           </div>
+          <i data-lucide="globe" class="text-primary/10 w-32 h-32 absolute -right-4 -bottom-4 transition-transform group-hover:scale-110"></i>
         </div>
-      </div>
+      </section>
+
     </main>
 
+    <!-- Footer -->
+    <footer class="w-full border-t border-outline-variant/15 bg-surface-container-low mt-24">
+      <div class="flex flex-col md:flex-row justify-between items-center px-8 py-14 w-full max-w-screen-2xl mx-auto gap-8">
+        <div>
+          <span class="font-headline italic text-lg text-primary">Ache o Café</span>
+          <p class="text-sm tracking-wide text-on-surface-variant mt-2 max-w-xs">
+            Curadoria das melhores torras para o paladar exigente.
+          </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-8">
+          <a class="text-sm tracking-wide text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-colors" href="#">Sobre Nós</a>
+          <a class="text-sm tracking-wide text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-colors" href="#">Guias de Preparo</a>
+          <a class="text-sm tracking-wide text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-colors" href="#">Atacado</a>
+          <a class="text-sm tracking-wide text-on-surface-variant hover:text-primary underline-offset-4 hover:underline transition-colors" href="#">Privacidade</a>
+        </div>
+        <div class="text-on-surface-variant text-sm tracking-wide opacity-60 text-center md:text-right">
+          © 2024 Ache o Café.
+        </div>
+      </div>
+    </footer>
+
     <!-- Leaflet JS -->
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      crossorigin=""
-    ></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="script.js"></script>
   </body>
 </html>
