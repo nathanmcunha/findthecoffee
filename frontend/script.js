@@ -53,8 +53,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("global-search").value = "";
       document.getElementById("roaster-filter").value = "";
       document.getElementById("roast-filter").value = "";
-      document.getElementById("roaster-dropdown-label").textContent = "Todas as Torrefações";
-      document.getElementById("roast-dropdown-label").textContent = "Qualquer Torra";
+      document.getElementById("roaster-dropdown-label").textContent =
+        "Todas as Torrefações";
+      document.getElementById("roast-dropdown-label").textContent =
+        "Qualquer Torra";
       fetchCafes();
     });
   }
@@ -86,7 +88,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       mapContainer.classList.remove("open");
       mapBtnText.textContent = "Ver Mapa";
-      mapToggleBtn.classList.remove("bg-primary", "text-surface-container-lowest");
+      mapToggleBtn.classList.remove(
+        "bg-primary",
+        "text-surface-container-lowest",
+      );
       mapToggleBtn.classList.add("bg-surface-container", "text-primary");
       if (mapBadge) mapBadge.classList.add("hidden");
     }
@@ -97,13 +102,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setDropdownOpen(btn, chevron, open) {
   if (open) {
-    btn.classList.remove("rounded-md", "border-outline-variant/30", "hover:border-primary");
+    btn.classList.remove(
+      "rounded-md",
+      "border-outline-variant/30",
+      "hover:border-primary",
+    );
     btn.classList.add("rounded-t-md", "border-primary");
     chevron?.classList.add("rotate-180");
     chevron?.classList.remove("group-hover:translate-y-0.5");
   } else {
     btn.classList.remove("rounded-t-md", "border-primary");
-    btn.classList.add("rounded-md", "border-outline-variant/30", "hover:border-primary");
+    btn.classList.add(
+      "rounded-md",
+      "border-outline-variant/30",
+      "hover:border-primary",
+    );
     chevron?.classList.remove("rotate-180");
     chevron?.classList.add("group-hover:translate-y-0.5");
   }
@@ -112,24 +125,40 @@ function setDropdownOpen(btn, chevron, open) {
 function closeAllDropdowns() {
   [
     ["roaster-dropdown-btn", "roaster-dropdown-panel", "roaster-chevron"],
-    ["roast-dropdown-btn",   "roast-dropdown-panel",   "roast-chevron"],
+    ["roast-dropdown-btn", "roast-dropdown-panel", "roast-chevron"],
   ].forEach(([btnId, panelId, chevronId]) => {
     const panel = document.getElementById(panelId);
     if (panel && !panel.classList.contains("hidden")) {
       panel.classList.add("hidden");
-      setDropdownOpen(document.getElementById(btnId), document.getElementById(chevronId), false);
+      setDropdownOpen(
+        document.getElementById(btnId),
+        document.getElementById(chevronId),
+        false,
+      );
     }
   });
 }
 
 function initCustomDropdowns() {
   [
-    { btnId: "roaster-dropdown-btn", panelId: "roaster-dropdown-panel", labelId: "roaster-dropdown-label", selectId: "roaster-filter", chevronId: "roaster-chevron" },
-    { btnId: "roast-dropdown-btn",   panelId: "roast-dropdown-panel",   labelId: "roast-dropdown-label",   selectId: "roast-filter",   chevronId: "roast-chevron"   },
+    {
+      btnId: "roaster-dropdown-btn",
+      panelId: "roaster-dropdown-panel",
+      labelId: "roaster-dropdown-label",
+      selectId: "roaster-filter",
+      chevronId: "roaster-chevron",
+    },
+    {
+      btnId: "roast-dropdown-btn",
+      panelId: "roast-dropdown-panel",
+      labelId: "roast-dropdown-label",
+      selectId: "roast-filter",
+      chevronId: "roast-chevron",
+    },
   ].forEach(({ btnId, panelId, labelId, selectId, chevronId }) => {
-    const btn    = document.getElementById(btnId);
-    const panel  = document.getElementById(panelId);
-    const label  = document.getElementById(labelId);
+    const btn = document.getElementById(btnId);
+    const panel = document.getElementById(panelId);
+    const label = document.getElementById(labelId);
     const select = document.getElementById(selectId);
     const chevron = document.getElementById(chevronId);
     if (!btn || !panel) return;
@@ -162,10 +191,13 @@ function initCustomDropdowns() {
 
 function initMap() {
   map = L.map("map").setView([-23.5505, -46.6333], 5);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    attribution: "&copy; OpenStreetMap &copy; CARTO",
-    r: window.devicePixelRatio > 1 ? "@2x" : "",
-  }).addTo(map);
+  L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    {
+      attribution: "&copy; OpenStreetMap &copy; CARTO",
+      r: window.devicePixelRatio > 1 ? "@2x" : "",
+    },
+  ).addTo(map);
 }
 
 function updateMarkers(venues) {
@@ -195,9 +227,7 @@ function updateMarkers(venues) {
       html: `<span style="${pinStyle}"></span>`,
     });
 
-    const marker = L.marker([lat, lng], { icon })
-      .addTo(map)
-      .bindPopup(`
+    const marker = L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
         <div style="font-family:'Manrope',sans-serif;">
           <strong style="color:#271310;display:block;margin-bottom:4px;">${venue.name}</strong>
           <span style="font-size:12px;color:#504442;">${venue.location || ""}</span>
@@ -228,7 +258,8 @@ function fetchRoasters() {
       const list = document.getElementById("roaster-dropdown-list");
       if (!select) return;
       while (select.options.length > 1) select.remove(1);
-      if (list) while (list.children.length > 1) list.removeChild(list.lastChild);
+      if (list)
+        while (list.children.length > 1) list.removeChild(list.lastChild);
       data.forEach((roaster) => {
         const opt = document.createElement("option");
         opt.value = roaster.id;
@@ -237,7 +268,8 @@ function fetchRoasters() {
         if (list) {
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
+          btn.className =
+            "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
           btn.dataset.value = roaster.id;
           btn.textContent = roaster.name;
           list.appendChild(btn);
@@ -300,6 +332,7 @@ function fetchCafes() {
     .then((data) => {
       renderResults(data);
       updateMarkers(data);
+      console.log(data);
     })
     .catch((err) => {
       resultsList.innerHTML = `
@@ -330,18 +363,20 @@ function createSensoryBar(label, value) {
   `;
 }
 
-function renderGrainItem(bean, idx) {
-  const id = `grain-${bean.id}`;
-  const sensoryAcidity   = bean.acidity   ?? null;
-  const sensorySweet     = bean.sweetness ?? null;
-  const sensoryBody      = bean.body      ?? null;
-  const hasSensory       = sensoryAcidity || sensorySweet || sensoryBody;
+function renderGrainItem(bean, cafe_id, idx) {
+  const id = `grain-${cafe_id}-${bean.id}`;
+  const sensoryAcidity = bean.acidity ?? null;
+  const sensorySweet = bean.sweetness ?? null;
+  const sensoryBody = bean.body ?? null;
+  const hasSensory = sensoryAcidity || sensorySweet || sensoryBody;
 
-  const tastingNotes  = bean.tasting_notes  ? bean.tasting_notes.join(", ") : null;
-  const variety       = bean.variety        ?? null;
-  const process       = bean.processing     ?? null;
-  const altitude      = bean.altitude       ? `${bean.altitude}m` : null;
-  const roastProfile  = bean.roast_level    ?? null;
+  const tastingNotes = bean.tasting_notes
+    ? bean.tasting_notes.join(", ")
+    : null;
+  const variety = bean.variety ?? null;
+  const process = bean.processing ?? null;
+  const altitude = bean.altitude ? `${bean.altitude}m` : null;
+  const roastProfile = bean.roast_level ?? null;
 
   const hasDetails = tastingNotes || variety || roastProfile || hasSensory;
 
@@ -361,60 +396,85 @@ function renderGrainItem(bean, idx) {
             </p>
           </div>
         </div>
-        ${hasDetails ? `
+        ${
+          hasDetails
+            ? `
           <i data-lucide="chevron-down" id="chevron-${id}"
              class="chevron-icon w-5 h-5 text-outline-variant group-hover:text-primary transition-colors flex-shrink-0 ${idx === 0 ? "rotated" : ""}"></i>
-        ` : ""}
+        `
+            : ""
+        }
       </div>
 
-      ${hasDetails ? `
+      ${
+        hasDetails
+          ? `
         <div id="content-${id}" class="grain-content ${idx === 0 ? "expanded" : ""}">
           <div class="mt-6 pt-6 border-t border-outline-variant/10 grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
-            ${tastingNotes ? `
+            ${
+              tastingNotes
+                ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Notas de Sabor</p>
                 <p class="text-sm font-medium text-on-surface">${tastingNotes}</p>
               </div>
-            ` : ""}
-            ${variety ? `
+            `
+                : ""
+            }
+            ${
+              variety
+                ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Variedade</p>
                 <p class="text-sm font-medium text-on-surface">${variety}</p>
               </div>
-            ` : ""}
-            ${roastProfile ? `
+            `
+                : ""
+            }
+            ${
+              roastProfile
+                ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Torra</p>
                 <p class="text-sm font-medium text-on-surface">${roastProfile}</p>
               </div>
-            ` : ""}
-            ${hasSensory ? `
+            `
+                : ""
+            }
+            ${
+              hasSensory
+                ? `
               <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-between">
-                ${createSensoryBar("Acidez",  sensoryAcidity)}
-                ${createSensoryBar("Doçura",  sensorySweet)}
-                ${createSensoryBar("Corpo",   sensoryBody)}
+                ${createSensoryBar("Acidez", sensoryAcidity)}
+                ${createSensoryBar("Doçura", sensorySweet)}
+                ${createSensoryBar("Corpo", sensoryBody)}
               </div>
-            ` : ""}
+            `
+                : ""
+            }
           </div>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
     </div>
   `;
 }
 
 function renderVenueCard(venue) {
   const beans = venue.matching_beans || [];
-
-  const beansHTML = beans.length > 0
-    ? `
+  const cafe_id = venue.id;
+  const beansHTML =
+    beans.length > 0
+      ? `
       <h4 class="text-xs font-bold text-primary mb-4 uppercase tracking-tighter">
         Grãos Disponíveis
       </h4>
       <div class="space-y-4">
-        ${beans.map((bean, idx) => renderGrainItem(bean, idx)).join("")}
+        ${beans.map((bean, idx) => renderGrainItem(bean, cafe_id, idx)).join("")}
       </div>
     `
-    : `<p class="text-sm text-on-surface-variant italic text-center py-6">Nenhum grão inventariado no momento.</p>`;
+      : `<p class="text-sm text-on-surface-variant italic text-center py-6">Nenhum grão inventariado no momento.</p>`;
 
   return `
     <div class="bg-surface-container-low rounded-xl p-1 transition-all">
