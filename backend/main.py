@@ -135,23 +135,13 @@ def list_cafes():
         # request.args.to_dict() ensures we pass a plain dict to Pydantic
         params = CafeSearchParams.model_validate(request.args.to_dict())
 
-        if (
-            params.roast
-            or params.origin
-            or params.roaster_id
-            or params.name
-            or params.q
-        ):
-            cafes = cafe_repo.search(
-                roast_level=params.roast,
-                origin=params.origin,
-                roaster_id=params.roaster_id,
-                cafe_name=params.name,
-                query_text=params.q,
-            )
-        else:
-            # For "All Cafes", we still use the basic list
-            cafes = cafe_repo.get_all()
+        cafes = cafe_repo.search(
+            roast_level=params.roast,
+            origin=params.origin,
+            roaster_id=params.roaster_id,
+            cafe_name=params.name,
+            query_text=params.q,
+        )
         return jsonify(cafes), 200
     except ValidationError as e:
         return jsonify(
