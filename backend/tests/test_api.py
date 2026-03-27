@@ -1,3 +1,8 @@
+from tests.conftest import TEST_API_KEY
+
+AUTH = {"X-API-Key": TEST_API_KEY}
+
+
 def test_ping(client):
     """Test health check endpoint."""
     res = client.get("/ping")
@@ -7,18 +12,23 @@ def test_ping(client):
 
 def test_add_cafe_validation_error(client):
     """Test that POST /api/cafes fails with invalid data (missing name)."""
-    res = client.post("/api/cafes", json={})
+    res = client.post("/api/cafes", json={}, headers=AUTH)
     assert res.status_code == 400
     assert "Validation Error" in res.get_json()["error"]
 
 
+def test_add_cafe_requires_auth(client):
+    """Test that POST /api/cafes returns 401 without a valid API key."""
+    res = client.post("/api/cafes", json={"name": "Test"})
+    assert res.status_code == 401
+
+
 def test_add_cafe_success(client, mocker):
     """Test that POST /api/cafes succeeds with valid data."""
-    # Patch the global instance repo inside the main module
     mocker.patch("main.cafe_repo.create", return_value=99)
 
     res = client.post(
-        "/api/cafes", json={"name": "Testing Cafe", "location": "Internet"}
+        "/api/cafes", json={"name": "Testing Cafe", "location": "Internet"}, headers=AUTH
     )
 
     assert res.status_code == 201
@@ -26,11 +36,20 @@ def test_add_cafe_success(client, mocker):
     assert res.get_json()["status"] == "created"
 
 
+def test_add_cafe_rejects_invalid_website(client):
+    """Test that POST /api/cafes rejects a non-HTTP website URL."""
+    res = client.post(
+        "/api/cafes",
+        json={"name": "Bad Cafe", "website": "javascript:alert(1)"},
+        headers=AUTH,
+    )
+    assert res.status_code == 400
+
+
 def test_list_cafes_with_filters(client, mocker):
     """Test that GET /api/cafes passes filters correctly to the repository."""
     mock_search = mocker.patch("main.cafe_repo.search", return_value=[])
 
-    # Call with filters
     res = client.get("/api/cafes?q=test&roast=Dark&roaster_id=1")
 
     assert res.status_code == 200
@@ -39,14 +58,16 @@ def test_list_cafes_with_filters(client, mocker):
     )
 
 
-def test_list_cafes_no_filters_calls_get_all(client, mocker):
-    """Test that GET /api/cafes with no filters calls get_all."""
-    mock_get_all = mocker.patch("main.cafe_repo.get_all", return_value=[])
+def test_list_cafes_no_filters_calls_search(client, mocker):
+    """Test that GET /api/cafes with no filters calls search with all-None params."""
+    mock_search = mocker.patch("main.cafe_repo.search", return_value=[])
 
     res = client.get("/api/cafes")
 
     assert res.status_code == 200
-    mock_get_all.assert_called_once()
+    mock_search.assert_called_once_with(
+        roast_level=None, origin=None, roaster_id=None, cafe_name=None, query_text=None
+    )
 
 
 def test_get_cafe_success(client, mocker):
@@ -124,7 +145,7 @@ def test_add_roaster_success(client, mocker):
     """Test POST /api/roasters creates a roaster and returns its ID."""
     mocker.patch("main.roaster_repo.create", return_value=7)
 
-    res = client.post("/api/roasters", json={"name": "New Roaster"})
+    res = client.post("/api/roasters", json={"name": "New Roaster"}, headers=AUTH)
 
     assert res.status_code == 201
     assert res.get_json()["id"] == 7
@@ -133,10 +154,16 @@ def test_add_roaster_success(client, mocker):
 
 def test_add_roaster_validation_error(client):
     """Test POST /api/roasters fails with missing name."""
-    res = client.post("/api/roasters", json={})
+    res = client.post("/api/roasters", json={}, headers=AUTH)
 
     assert res.status_code == 400
     assert "Validation Error" in res.get_json()["error"]
+
+
+def test_add_roaster_requires_auth(client):
+    """Test that POST /api/roasters returns 401 without a valid API key."""
+    res = client.post("/api/roasters", json={"name": "New Roaster"})
+    assert res.status_code == 401
 
 
 # ============== BEAN ENDPOINT TESTS ==============
@@ -175,7 +202,7 @@ def test_add_bean_success(client, mocker):
     """Test POST /api/beans creates a bean and returns its ID."""
     mocker.patch("main.bean_repo.create", return_value=12)
 
-    res = client.post("/api/beans", json={"name": "New Bean"})
+    res = client.post("/api/beans", json={"name": "New Bean"}, headers=AUTH)
 
     assert res.status_code == 201
     assert res.get_json()["id"] == 12
@@ -184,10 +211,16 @@ def test_add_bean_success(client, mocker):
 
 def test_add_bean_validation_error(client):
     """Test POST /api/beans fails with missing name."""
-    res = client.post("/api/beans", json={})
+    res = client.post("/api/beans", json={}, headers=AUTH)
 
     assert res.status_code == 400
     assert "Validation Error" in res.get_json()["error"]
+
+
+def test_add_bean_requires_auth(client):
+    """Test that POST /api/beans returns 401 without a valid API key."""
+    res = client.post("/api/beans", json={"name": "New Bean"})
+    assert res.status_code == 401
 
 
 # ============== INVENTORY POST TESTS ==============
@@ -199,7 +232,7 @@ def test_add_to_inventory_success(client, mocker):
     mocker.patch("main.bean_repo.get_by_id", return_value={"id": 5, "name": "Bean A"})
     mocker.patch("main.cafe_repo.add_to_inventory")
 
-    res = client.post("/api/cafes/1/inventory", json={"bean_id": 5})
+    res = client.post("/api/cafes/1/inventory", json={"bean_id": 5}, headers=AUTH)
 
     assert res.status_code == 200
     assert res.get_json()["status"] == "success"
@@ -209,7 +242,7 @@ def test_add_to_inventory_cafe_not_found(client, mocker):
     """Test POST /api/cafes/<id>/inventory returns 404 when cafe not found."""
     mocker.patch("main.cafe_repo.get_by_id", return_value=None)
 
-    res = client.post("/api/cafes/999/inventory", json={"bean_id": 5})
+    res = client.post("/api/cafes/999/inventory", json={"bean_id": 5}, headers=AUTH)
 
     assert res.status_code == 404
 
@@ -219,7 +252,7 @@ def test_add_to_inventory_bean_not_found(client, mocker):
     mocker.patch("main.cafe_repo.get_by_id", return_value={"id": 1, "name": "Test Cafe"})
     mocker.patch("main.bean_repo.get_by_id", return_value=None)
 
-    res = client.post("/api/cafes/1/inventory", json={"bean_id": 999})
+    res = client.post("/api/cafes/1/inventory", json={"bean_id": 999}, headers=AUTH)
 
     assert res.status_code == 404
 
@@ -228,14 +261,20 @@ def test_add_to_inventory_missing_bean_id(client, mocker):
     """Test POST /api/cafes/<id>/inventory returns 400 when bean_id is absent from body."""
     mocker.patch("main.cafe_repo.get_by_id", return_value={"id": 1, "name": "Test Cafe"})
 
-    res = client.post("/api/cafes/1/inventory", json={})
+    res = client.post("/api/cafes/1/inventory", json={}, headers=AUTH)
 
     assert res.status_code == 400
     assert "Validation Error" in res.get_json()["error"]
 
 
+def test_add_to_inventory_requires_auth(client):
+    """Test that POST /api/cafes/<id>/inventory returns 401 without a valid API key."""
+    res = client.post("/api/cafes/1/inventory", json={"bean_id": 5})
+    assert res.status_code == 401
+
+
 def test_list_beans_no_filters_still_calls_search(client, mocker):
-    """Test that GET /api/beans with no filters always routes through search (no get_all fallback)."""
+    """Test that GET /api/beans with no filters always routes through search."""
     mock_search = mocker.patch("main.bean_repo.search", return_value=[])
 
     res = client.get("/api/beans")
@@ -249,12 +288,13 @@ def test_list_beans_no_filters_still_calls_search(client, mocker):
 
 def test_list_cafes_repo_error_returns_500(client, mocker):
     """Test GET /api/cafes returns 500 when the repository raises an unexpected exception."""
-    mocker.patch("main.cafe_repo.get_all", side_effect=Exception("DB connection failed"))
+    mocker.patch("main.cafe_repo.search", side_effect=Exception("DB connection failed"))
 
     res = client.get("/api/cafes")
 
     assert res.status_code == 500
-    assert "DB connection failed" in res.get_json()["error"]
+    # Internal error details must NOT be exposed to the caller
+    assert "DB connection failed" not in res.get_json().get("error", "")
 
 
 def test_get_cafe_repo_error_returns_500(client, mocker):
