@@ -1,6 +1,7 @@
 import functools
 import logging
 import os
+import uuid
 from collections.abc import Callable
 from typing import ParamSpec
 from dotenv import load_dotenv
@@ -102,6 +103,11 @@ class RoasterCreate(BaseModel):
         return v
 
 
+class RoasterSearchParams(BaseModel):
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=50, ge=1, le=100)
+
+
 class CafeCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     location: str | None = Field(default=None, max_length=200)
@@ -118,26 +124,36 @@ class CafeCreate(BaseModel):
 class CafeSearchParams(BaseModel):
     roast: str | None = Field(default=None, max_length=50)
     origin: str | None = Field(default=None, max_length=100)
-    roaster_id: int | None = None
+    roaster_id: uuid.UUID | None = None
     name: str | None = Field(default=None, max_length=200)
     q: str | None = Field(default=None, max_length=200)
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=50, ge=1, le=100)
 
 
 class CafeInventoryAdd(BaseModel):
-    bean_id: int
+    bean_id: uuid.UUID
 
 
 class BeanSearchParams(BaseModel):
     roast: str | None = Field(default=None, max_length=50)
     origin: str | None = Field(default=None, max_length=100)
-    roaster_id: int | None = None
+    roaster_id: uuid.UUID | None = None
+    page: int = Field(default=1, ge=1)
+    per_page: int = Field(default=50, ge=1, le=100)
 
 
 class BeanCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
-    roaster_id: int | None = None
+    roaster_id: uuid.UUID | None = None
     roast_level: str | None = Field(default=None, max_length=50)
     origin: str | None = Field(default=None, max_length=100)
+
+
+class NearbySearchParams(BaseModel):
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+    radius: int = Field(default=5000, ge=100, le=50000)
 
 
 @app.route("/ping", methods=["GET"])
@@ -153,15 +169,22 @@ def ping():
 def list_roasters():
     """Return a list of all roasters."""
     try:
-        roasters = roaster_repo.get_all()
-        return jsonify(roasters), 200
+        params = RoasterSearchParams.model_validate(request.args.to_dict())
+        offset = (params.page - 1) * params.per_page
+
+        roasters = roaster_repo.get_all(limit=params.per_page, offset=offset)
+        return jsonify({
+            "data": roasters,
+            "page": params.page,
+            "per_page": params.per_page
+        }), 200
     except Exception:
         logger.exception("Error in list_roasters")
         return jsonify({"error": "An internal error occurred"}), 500
 
 
-@app.route("/api/roasters/<int:roaster_id>", methods=["GET"])
-def get_roaster(roaster_id: int):
+@app.route("/api/roasters/<uuid:roaster_id>", methods=["GET"])
+def get_roaster(roaster_id: uuid.UUID):
     """Return a single roaster by ID."""
     try:
         roaster = roaster_repo.get_by_id(roaster_id)
@@ -226,6 +249,7 @@ def list_cafes():
     """Return a list of cafes. Supports discovery filters and global search: ?q=query"""
     try:
         params = CafeSearchParams.model_validate(request.args.to_dict())
+        offset = (params.page - 1) * params.per_page
 
         cafes = cafe_repo.search(
             roast_level=params.roast,
@@ -233,8 +257,14 @@ def list_cafes():
             roaster_id=params.roaster_id,
             cafe_name=params.name,
             query_text=params.q,
+            limit=params.per_page,
+            offset=offset,
         )
-        return jsonify(cafes), 200
+        return jsonify({
+            "data": cafes,
+            "page": params.page,
+            "per_page": params.per_page
+        }), 200
     except ValidationError as e:
         return jsonify(
             {"error": "Invalid filter parameters", "details": _validation_errors(e)}
@@ -244,8 +274,26 @@ def list_cafes():
         return jsonify({"error": "An internal error occurred"}), 500
 
 
-@app.route("/api/cafes/<int:cafe_id>", methods=["GET"])
-def get_cafe(cafe_id: int):
+@app.route("/api/cafes/nearby", methods=["GET"])
+@limiter.limit("60 per minute")
+def search_nearby():
+    """Return cafes near a given latitude/longitude within a radius."""
+    try:
+        params = NearbySearchParams.model_validate(request.args.to_dict())
+
+        cafes = cafe_repo.search_nearby(lat=params.lat, lng=params.lng, radius_m=params.radius)
+        return jsonify(cafes), 200
+    except ValidationError as e:
+        return jsonify(
+            {"error": "Invalid filter parameters", "details": _validation_errors(e)}
+        ), 400
+    except Exception:
+        logger.exception("Error in search_nearby")
+        return jsonify({"error": "An internal error occurred"}), 500
+
+
+@app.route("/api/cafes/<uuid:cafe_id>", methods=["GET"])
+def get_cafe(cafe_id: uuid.UUID):
     """Return a single cafe by ID."""
     try:
         cafe = cafe_repo.get_by_id(cafe_id)
@@ -257,8 +305,8 @@ def get_cafe(cafe_id: int):
         return jsonify({"error": "An internal error occurred"}), 500
 
 
-@app.route("/api/cafes/<int:cafe_id>/inventory", methods=["GET"])
-def get_cafe_inventory(cafe_id: int):
+@app.route("/api/cafes/<uuid:cafe_id>/inventory", methods=["GET"])
+def get_cafe_inventory(cafe_id: uuid.UUID):
     """Return all coffee beans currently available at a cafe."""
     try:
         cafe = cafe_repo.get_by_id(cafe_id)
@@ -272,10 +320,10 @@ def get_cafe_inventory(cafe_id: int):
         return jsonify({"error": "An internal error occurred"}), 500
 
 
-@app.route("/api/cafes/<int:cafe_id>/inventory", methods=["POST"])
+@app.route("/api/cafes/<uuid:cafe_id>/inventory", methods=["POST"])
 @require_api_key
 @limiter.limit("30 per minute")
-def add_to_inventory(cafe_id: int):
+def add_to_inventory(cafe_id: uuid.UUID):
     """Links an existing bean to a cafe's inventory."""
     try:
         cafe = cafe_repo.get_by_id(cafe_id)
@@ -307,11 +355,17 @@ def list_beans():
     """Return a list of all coffee beans. Supports filters: ?roast=medium&origin=ethiopia&roaster_id=1"""
     try:
         params = BeanSearchParams.model_validate(request.args.to_dict())
+        offset = (params.page - 1) * params.per_page
 
         beans = bean_repo.search(
-            roast_level=params.roast, origin=params.origin, roaster_id=params.roaster_id
+            roast_level=params.roast, origin=params.origin, roaster_id=params.roaster_id,
+            limit=params.per_page, offset=offset
         )
-        return jsonify(beans), 200
+        return jsonify({
+            "data": beans,
+            "page": params.page,
+            "per_page": params.per_page
+        }), 200
     except ValidationError as e:
         return jsonify(
             {"error": "Invalid filter parameters", "details": _validation_errors(e)}
@@ -321,8 +375,8 @@ def list_beans():
         return jsonify({"error": "An internal error occurred"}), 500
 
 
-@app.route("/api/beans/<int:bean_id>", methods=["GET"])
-def get_bean(bean_id: int):
+@app.route("/api/beans/<uuid:bean_id>", methods=["GET"])
+def get_bean(bean_id: uuid.UUID):
     """Return a single coffee bean by ID."""
     try:
         bean = bean_repo.get_by_id(bean_id)
