@@ -34,14 +34,38 @@ if [ ! -f frontend/tailwindcss ]; then
 fi
 """
 
+[tasks."esbuild:download"]
+description = "Download standalone esbuild binary"
+run = """
+if [ ! -f frontend/esbuild ]; then
+    echo "Downloading esbuild..."
+    curl -sL https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.25.2.tgz | tar xz --strip-components=2 -C frontend package/bin/esbuild
+    chmod +x frontend/esbuild
+fi
+"""
+
+[tasks."ts:check"]
+description = "Type-check TypeScript sources with deno check"
+run = "deno check frontend/src/main.ts"
+
+[tasks."js:build"]
+description = "Bundle TypeScript → script.js via esbuild"
+depends = ["esbuild:download"]
+run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js"
+
+[tasks."js:watch"]
+description = "Watch and rebuild TypeScript on changes"
+depends = ["esbuild:download"]
+run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --watch"
+
 [tasks."tailwind:watch"]
 description = "Watch and compile Tailwind CSS"
 depends = ["tailwind:download"]
 run = "./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --watch"
 
 [tasks."up:frontend"]
-description = "Serve the frontend and compile CSS"
-depends = ["tailwind:download"]
+description = "Serve the frontend and compile CSS + JS"
+depends = ["tailwind:download", "js:build"]
 run = """
 ./frontend/tailwindcss -i frontend/input.css -o frontend/style.css
 python -m http.server --directory frontend 8080
@@ -54,5 +78,5 @@ run = "python -m pytest backend/tests"
 
 [tasks.dev]
 description = "Run backend and frontend in parallel"
-depends = ["up:infra", "tailwind:download"]
-run = "mise run up:backend & mise run up:frontend & mise run tailwind:watch & wait"
+depends = ["up:infra", "tailwind:download", "esbuild:download"]
+run = "mise run up:backend & mise run up:frontend & mise run tailwind:watch & mise run js:watch & wait"
