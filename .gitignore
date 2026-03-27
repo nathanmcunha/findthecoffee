@@ -31,4 +31,4 @@ postgres_data/
 gha-creds-*.json
 
 tailwindcss
-Locust_*.html
+Locust_*.htmlNOTES.md

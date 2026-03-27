@@ -10,10 +10,12 @@ class Database:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(Database, cls).__new__(cls)
-            # DATABASE_URL is typically provided by environment variables
-            url = os.getenv(
-                "DATABASE_URL", "postgresql://user:password@localhost:5432/coffeedb"
-            )
+            url = os.getenv("DATABASE_URL")
+            if not url:
+                raise RuntimeError(
+                    "DATABASE_URL environment variable is not set. "
+                    "Example: postgresql://user:password@localhost:5432/coffeedb"
+                )
             # Ensure we use psycopg (v3) dialect, not psycopg2
             if url.startswith("postgresql://"):
                 url = url.replace("postgresql://", "postgresql+psycopg://", 1)
