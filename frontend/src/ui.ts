@@ -1,5 +1,8 @@
 import type { Bean, Cafe } from "./types.ts";
 
+/**
+ * Creates a sensory bar visualization for coffee attributes
+ */
 function createSensoryBar(label: string, value: number | null): string {
   if (!value) return "";
   let dots = "";
@@ -14,7 +17,10 @@ function createSensoryBar(label: string, value: number | null): string {
   `;
 }
 
-function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
+/**
+ * Renders a single coffee bean item in the cafe's inventory
+ */
+function renderGrainItem(bean: Bean, cafeId: string, idx: number): string {
   const id = `grain-${cafeId}-${bean.id}`;
   const hasSensory = bean.acidity || bean.sweetness || bean.body;
   const tastingNotes = bean.tasting_notes ? bean.tasting_notes.join(", ") : null;
@@ -33,7 +39,7 @@ function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
           <div>
             <p class="font-bold text-primary text-sm">${bean.name}</p>
             <p class="text-xs text-on-surface-variant uppercase">
-              ${[bean.roaster_name, bean.processing, altitude].filter(Boolean).join(" · ") || "Detalhes não disponíveis"}
+              ${[bean.roaster_name, bean.roast_level, bean.origin].filter(Boolean).join(" · ") || "Detalhes não disponíveis"}
             </p>
           </div>
         </div>
@@ -70,6 +76,12 @@ function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
                 <p class="text-sm font-medium text-on-surface">${bean.roast_level}</p>
               </div>
             ` : ""}
+            ${bean.origin ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Origem</p>
+                <p class="text-sm font-medium text-on-surface">${bean.origin}</p>
+              </div>
+            ` : ""}
             ${hasSensory ? `
               <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-between">
                 ${createSensoryBar("Acidez", bean.acidity)}
@@ -86,6 +98,9 @@ function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
   `;
 }
 
+/**
+ * Renders a cafe card with its available coffee beans
+ */
 function renderVenueCard(venue: Cafe): string {
   const beans = venue.matching_beans || [];
   const beansHTML =
@@ -105,11 +120,24 @@ function renderVenueCard(venue: Cafe): string {
       <div class="bg-surface-container-lowest rounded-lg p-8 h-full flex flex-col">
 
         <div class="flex justify-between items-start mb-6">
-          <div>
+          <div class="flex-1">
             <span class="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-2 block">
               ${venue.location || "Localização não informada"}
             </span>
             <h3 class="font-headline text-3xl text-primary mb-1">${venue.name}</h3>
+            ${venue.address ? `
+              <p class="text-sm text-on-surface-variant mt-2 flex items-center gap-1">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                ${venue.address}
+              </p>
+            ` : ""}
+            ${venue.website ? `
+              <a href="${venue.website}" target="_blank" rel="noopener noreferrer" 
+                 class="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+                Visitar site
+              </a>
+            ` : ""}
           </div>
           <div class="bg-secondary-container p-3 rounded-lg text-on-secondary-container flex-shrink-0">
             <i data-lucide="coffee" class="w-6 h-6"></i>
@@ -125,6 +153,9 @@ function renderVenueCard(venue: Cafe): string {
   `;
 }
 
+/**
+ * Renders the list of cafes to the DOM
+ */
 export function renderResults(venues: Cafe[]): void {
   const countEl = document.getElementById("results-count");
   if (countEl) {
@@ -152,6 +183,9 @@ export function renderResults(venues: Cafe[]): void {
   lucide.createIcons();
 }
 
+/**
+ * Shows loading state in the results area
+ */
 export function showLoadingState(isFirstLoad: boolean): void {
   const list = document.getElementById("results-list");
   if (!list) return;
@@ -188,6 +222,9 @@ export function showLoadingState(isFirstLoad: boolean): void {
   }
 }
 
+/**
+ * Shows error state in the results area
+ */
 export function showErrorState(): void {
   const list = document.getElementById("results-list");
   if (!list) return;

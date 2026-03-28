@@ -1,73 +1,124 @@
 "use strict";
 (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+
   // frontend/src/api.ts
-  var API_BASE_URL = "http://localhost:5000/api";
+  var api_exports = {};
+  __export(api_exports, {
+    fetchCafes: () => fetchCafes,
+    fetchNearbyCafes: () => fetchNearbyCafes,
+    fetchRoasters: () => fetchRoasters
+  });
   async function fetchRoasters() {
     const r = await fetch(`${API_BASE_URL}/roasters`);
-    return r.json();
+    if (!r.ok) throw new Error("Falha ao buscar torrefa\xE7\xF5es");
+    const json = await r.json();
+    return json.data;
   }
-  async function fetchCafes(filters) {
+  async function fetchCafes(filters = {}) {
     const params = [];
     if (filters.query) params.push(`q=${encodeURIComponent(filters.query)}`);
-    if (filters.roast) params.push(`roast=${filters.roast}`);
+    if (filters.roast) params.push(`roast=${encodeURIComponent(filters.roast)}`);
+    if (filters.origin) params.push(`origin=${encodeURIComponent(filters.origin)}`);
     if (filters.roasterId) params.push(`roaster_id=${filters.roasterId}`);
+    if (filters.name) params.push(`name=${encodeURIComponent(filters.name)}`);
+    if (filters.page) params.push(`page=${filters.page}`);
+    if (filters.per_page) params.push(`per_page=${filters.per_page}`);
     const qs = params.length ? `?${params.join("&")}` : "";
     const r = await fetch(`${API_BASE_URL}/cafes${qs}`);
     if (!r.ok) throw new Error("Falha na resposta da rede");
+    const json = await r.json();
+    return json.data;
+  }
+  async function fetchNearbyCafes(lat, lng, radius = 5e3) {
+    const params = new URLSearchParams({
+      lat: lat.toString(),
+      lng: lng.toString(),
+      radius: radius.toString()
+    });
+    const r = await fetch(`${API_BASE_URL}/cafes/nearby?${params}`);
+    if (!r.ok) throw new Error("Falha ao buscar caf\xE9s pr\xF3ximos");
     return r.json();
   }
+  var API_BASE_URL;
+  var init_api = __esm({
+    "frontend/src/api.ts"() {
+      "use strict";
+      API_BASE_URL = "http://localhost:5000/api";
+    }
+  });
+
+  // frontend/src/main.ts
+  init_api();
 
   // frontend/src/map.ts
-  var map;
-  var markers = [];
+  var map2;
+  var markers2 = [];
+  var DEFAULT_CENTER = [-23.5505, -46.6333];
+  var DEFAULT_ZOOM = 5;
   function initMap() {
-    map = L.map("map").setView([-23.5505, -46.6333], 5);
+    map2 = L.map("map").setView(DEFAULT_CENTER, DEFAULT_ZOOM);
     L.tileLayer(
       "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
       {
         attribution: "&copy; OpenStreetMap &copy; CARTO",
         r: window.devicePixelRatio > 1 ? "@2x" : ""
       }
-    ).addTo(map);
+    ).addTo(map2);
   }
-  function updateMarkers(venues, mapIsVisible2) {
-    markers.forEach((m) => map.removeLayer(m));
-    markers = [];
-    venues.forEach((venue) => {
-      const lat = -23.5505 + (Math.random() - 0.5) * 5;
-      const lng = -46.6333 + (Math.random() - 0.5) * 5;
-      const pinStyle = `
-      background-color: #271310;
-      width: 1.5rem; height: 1.5rem;
-      display: block;
-      left: -0.75rem; top: -0.75rem;
-      position: relative;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 2px solid white;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+  function createPinIcon() {
+    const pinStyle = `
+    background-color: #271310;
+    width: 1.5rem; height: 1.5rem;
+    display: block;
+    left: -0.75rem; top: -0.75rem;
+    position: relative;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    border: 2px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+  `;
+    return L.divIcon({
+      className: "custom-pin",
+      iconAnchor: [0, 24],
+      popupAnchor: [0, -36],
+      html: `<span style="${pinStyle}"></span>`
+    });
+  }
+  function updateMarkers(cafes, mapIsVisible2) {
+    markers2.forEach((m) => map2.removeLayer(m));
+    markers2 = [];
+    cafes.forEach((cafe) => {
+      const lat = cafe.latitude ?? DEFAULT_CENTER[0] + (Math.random() - 0.5) * 5;
+      const lng = cafe.longitude ?? DEFAULT_CENTER[1] + (Math.random() - 0.5) * 5;
+      const icon = createPinIcon();
+      const popupContent = `
+      <div style="font-family:'Manrope',sans-serif; min-width: 200px;">
+        <strong style="color:#271310;display:block;margin-bottom:6px;font-size:14px;">${cafe.name}</strong>
+        ${cafe.location ? `<div style="font-size:12px;color:#504442;margin-bottom:4px;">\u{1F4CD} ${cafe.location}</div>` : ""}
+        ${cafe.address ? `<div style="font-size:11px;color:#666;margin-bottom:6px;">${cafe.address}</div>` : ""}
+        ${cafe.website ? `<a href="${cafe.website}" target="_blank" style="font-size:12px;color:#271310;text-decoration:underline;">Visitar site</a>` : ""}
+        ${cafe.distance_m ? `<div style="font-size:11px;color:#271310;margin-top:6px;font-weight:600;">\u{1F4CF} ${cafe.distance_m.toFixed(0)}m</div>` : ""}
+      </div>
     `;
-      const icon = L.divIcon({
-        className: "custom-pin",
-        iconAnchor: [0, 24],
-        popupAnchor: [0, -36],
-        html: `<span style="${pinStyle}"></span>`
-      });
-      const marker = L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
-        <div style="font-family:'Manrope',sans-serif;">
-          <strong style="color:#271310;display:block;margin-bottom:4px;">${venue.name}</strong>
-          <span style="font-size:12px;color:#504442;">${venue.location || ""}</span>
-        </div>
-      `);
-      markers.push(marker);
+      const marker = L.marker([lat, lng], { icon }).addTo(map2).bindPopup(popupContent);
+      markers2.push(marker);
     });
     const badgeText = document.getElementById("map-badge-text");
     if (badgeText) {
-      badgeText.textContent = `${venues.length} ${venues.length === 1 ? "local" : "locais"} no mapa`;
+      badgeText.textContent = `${cafes.length} ${cafes.length === 1 ? "local" : "locais"} no mapa`;
     }
-    if (markers.length > 0 && mapIsVisible2) {
-      const group = L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.1));
+    if (markers2.length > 0 && mapIsVisible2) {
+      const group = L.featureGroup(markers2);
+      map2.fitBounds(group.getBounds().pad(0.1));
     }
   }
   function getUserLocation() {
@@ -81,8 +132,8 @@
     btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Localizando...`;
     lucide.createIcons();
     navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        map.setView([latitude, longitude], 13);
+      async ({ coords: { latitude, longitude } }) => {
+        map2.setView([latitude, longitude], 13);
         const mapContainer = document.getElementById("map-container");
         if (mapContainer && !mapContainer.classList.contains("open")) {
           document.getElementById("toggle-map-btn")?.click();
@@ -94,7 +145,18 @@
           weight: 2,
           opacity: 1,
           fillOpacity: 0.8
-        }).addTo(map).bindPopup("Voc\xEA est\xE1 aqui").openPopup();
+        }).addTo(map2).bindPopup("Voc\xEA est\xE1 aqui").openPopup();
+        try {
+          const { fetchNearbyCafes: fetchNearbyCafes2 } = await Promise.resolve().then(() => (init_api(), api_exports));
+          const nearbyCafes = await fetchNearbyCafes2(latitude, longitude, 5e3);
+          if (nearbyCafes.length > 0) {
+            updateMarkers(nearbyCafes, true);
+            const event = new CustomEvent("nearby-loaded", { detail: nearbyCafes });
+            window.dispatchEvent(event);
+          }
+        } catch (err) {
+          console.error("Erro ao buscar caf\xE9s pr\xF3ximos:", err);
+        }
         btn.innerHTML = originalHtml;
         lucide.createIcons();
       },
@@ -105,103 +167,6 @@
         lucide.createIcons();
       }
     );
-  }
-
-  // frontend/src/dropdowns.ts
-  function setDropdownOpen(btn, chevron, open) {
-    if (open) {
-      btn.classList.remove("rounded-md", "border-outline-variant/30", "hover:border-primary");
-      btn.classList.add("rounded-t-md", "border-primary");
-      chevron?.classList.add("rotate-180");
-      chevron?.classList.remove("group-hover:translate-y-0.5");
-    } else {
-      btn.classList.remove("rounded-t-md", "border-primary");
-      btn.classList.add("rounded-md", "border-outline-variant/30", "hover:border-primary");
-      chevron?.classList.remove("rotate-180");
-      chevron?.classList.add("group-hover:translate-y-0.5");
-    }
-  }
-  function closeAllDropdowns() {
-    [
-      ["roaster-dropdown-btn", "roaster-dropdown-panel", "roaster-chevron"],
-      ["roast-dropdown-btn", "roast-dropdown-panel", "roast-chevron"]
-    ].forEach(([btnId, panelId, chevronId]) => {
-      const panel = document.getElementById(panelId);
-      if (panel && !panel.classList.contains("hidden")) {
-        panel.classList.add("hidden");
-        const btn = document.getElementById(btnId);
-        const chevron = document.getElementById(chevronId);
-        if (btn) setDropdownOpen(btn, chevron, false);
-      }
-    });
-  }
-  function initCustomDropdowns() {
-    const configs = [
-      {
-        btnId: "roaster-dropdown-btn",
-        panelId: "roaster-dropdown-panel",
-        labelId: "roaster-dropdown-label",
-        selectId: "roaster-filter",
-        chevronId: "roaster-chevron"
-      },
-      {
-        btnId: "roast-dropdown-btn",
-        panelId: "roast-dropdown-panel",
-        labelId: "roast-dropdown-label",
-        selectId: "roast-filter",
-        chevronId: "roast-chevron"
-      }
-    ];
-    configs.forEach(({ btnId, panelId, labelId, selectId, chevronId }) => {
-      const btn = document.getElementById(btnId);
-      const panel = document.getElementById(panelId);
-      const label = document.getElementById(labelId);
-      const select = document.getElementById(selectId);
-      const chevron = document.getElementById(chevronId);
-      if (!btn || !panel) return;
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const isOpen = !panel.classList.contains("hidden");
-        closeAllDropdowns();
-        if (!isOpen) {
-          panel.classList.remove("hidden");
-          setDropdownOpen(btn, chevron, true);
-        }
-      });
-      panel.addEventListener("click", (e) => {
-        const item = e.target.closest("[data-value]");
-        if (!item) return;
-        if (label) label.textContent = item.textContent?.trim() ?? "";
-        if (select) {
-          select.value = item.dataset["value"] ?? "";
-          select.dispatchEvent(new Event("change"));
-        }
-        panel.classList.add("hidden");
-        setDropdownOpen(btn, chevron, false);
-      });
-    });
-    document.addEventListener("click", closeAllDropdowns);
-  }
-  function populateRoasterDropdown(roasters) {
-    const select = document.getElementById("roaster-filter");
-    const list = document.getElementById("roaster-dropdown-list");
-    if (!select) return;
-    while (select.options.length > 1) select.remove(1);
-    if (list) while (list.children.length > 1) list.removeChild(list.lastChild);
-    roasters.forEach((roaster) => {
-      const opt = document.createElement("option");
-      opt.value = String(roaster.id);
-      opt.textContent = roaster.name;
-      select.appendChild(opt);
-      if (list) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
-        btn.dataset["value"] = String(roaster.id);
-        btn.textContent = roaster.name;
-        list.appendChild(btn);
-      }
-    });
   }
 
   // frontend/src/ui.ts
@@ -236,7 +201,7 @@
           <div>
             <p class="font-bold text-primary text-sm">${bean.name}</p>
             <p class="text-xs text-on-surface-variant uppercase">
-              ${[bean.roaster_name, bean.processing, altitude].filter(Boolean).join(" \xB7 ") || "Detalhes n\xE3o dispon\xEDveis"}
+              ${[bean.roaster_name, bean.roast_level, bean.origin].filter(Boolean).join(" \xB7 ") || "Detalhes n\xE3o dispon\xEDveis"}
             </p>
           </div>
         </div>
@@ -267,6 +232,12 @@
                 <p class="text-sm font-medium text-on-surface">${bean.roast_level}</p>
               </div>
             ` : ""}
+            ${bean.origin ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Origem</p>
+                <p class="text-sm font-medium text-on-surface">${bean.origin}</p>
+              </div>
+            ` : ""}
             ${hasSensory ? `
               <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-between">
                 ${createSensoryBar("Acidez", bean.acidity)}
@@ -295,11 +266,24 @@
       <div class="bg-surface-container-lowest rounded-lg p-8 h-full flex flex-col">
 
         <div class="flex justify-between items-start mb-6">
-          <div>
+          <div class="flex-1">
             <span class="text-xs font-bold tracking-widest uppercase text-on-surface-variant mb-2 block">
               ${venue.location || "Localiza\xE7\xE3o n\xE3o informada"}
             </span>
             <h3 class="font-headline text-3xl text-primary mb-1">${venue.name}</h3>
+            ${venue.address ? `
+              <p class="text-sm text-on-surface-variant mt-2 flex items-center gap-1">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                ${venue.address}
+              </p>
+            ` : ""}
+            ${venue.website ? `
+              <a href="${venue.website}" target="_blank" rel="noopener noreferrer" 
+                 class="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1">
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+                Visitar site
+              </a>
+            ` : ""}
           </div>
           <div class="bg-secondary-container p-3 rounded-lg text-on-secondary-container flex-shrink-0">
             <i data-lucide="coffee" class="w-6 h-6"></i>
@@ -392,11 +376,14 @@
   var searchTimer;
   var mapIsVisible = false;
   var isFirstLoad = true;
+  var currentCafes = [];
   function getFilters() {
     return {
       query: document.getElementById("global-search")?.value ?? "",
       roast: document.getElementById("roast-filter")?.value ?? "",
-      roasterId: document.getElementById("roaster-filter")?.value ?? ""
+      origin: document.getElementById("origin-filter")?.value ?? "",
+      roasterId: document.getElementById("roaster-filter")?.value ?? "",
+      name: document.getElementById("name-filter")?.value ?? ""
     };
   }
   async function loadCafes() {
@@ -404,17 +391,43 @@
     if (isFirstLoad) isFirstLoad = false;
     try {
       const data = await fetchCafes(getFilters());
+      currentCafes = data;
       renderResults(data);
       updateMarkers(data, mapIsVisible);
-      console.log(data);
+      console.log("Cafes loaded:", data);
     } catch (err) {
       showErrorState();
       console.error("Erro na API:", err);
     }
   }
+  window.addEventListener("nearby-loaded", (event) => {
+    currentCafes = event.detail;
+    renderResults(event.detail);
+  });
   document.addEventListener("DOMContentLoaded", () => {
     initMap();
-    fetchRoasters().then(populateRoasterDropdown).catch((err) => console.error("Erro ao buscar torrefa\xE7\xF5es:", err));
+    fetchRoasters().then((roasters) => {
+      const select = document.getElementById("roaster-filter");
+      const list = document.getElementById("roaster-dropdown-list");
+      if (select) {
+        while (select.options.length > 1) select.remove(1);
+        if (list) while (list.children.length > 1) list.removeChild(list.lastChild);
+        roasters.forEach((roaster) => {
+          const opt = document.createElement("option");
+          opt.value = roaster.id;
+          opt.textContent = roaster.name;
+          select.appendChild(opt);
+          if (list) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
+            btn.dataset.value = roaster.id;
+            btn.textContent = roaster.name;
+            list.appendChild(btn);
+          }
+        });
+      }
+    }).catch((err) => console.error("Erro ao buscar torrefa\xE7\xF5es:", err));
     loadCafes();
     const globalSearch = document.getElementById("global-search");
     if (globalSearch) {
@@ -423,11 +436,11 @@
         searchTimer = setTimeout(loadCafes, 300);
       });
     }
-    ["roaster-filter", "roast-filter"].forEach((id) => {
+    ["roaster-filter", "roast-filter", "origin-filter"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.addEventListener("change", loadCafes);
     });
-    ["origin-filter", "cep-filter"].forEach((id) => {
+    ["cep-filter"].forEach((id) => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener("input", () => {
@@ -441,9 +454,12 @@
     const clearFilters = document.getElementById("clear-filters");
     if (clearFilters) {
       clearFilters.addEventListener("click", () => {
-        document.getElementById("global-search").value = "";
-        document.getElementById("roaster-filter").value = "";
-        document.getElementById("roast-filter").value = "";
+        const globalSearchEl = document.getElementById("global-search");
+        const roasterFilter = document.getElementById("roaster-filter");
+        const roastFilter = document.getElementById("roast-filter");
+        if (globalSearchEl) globalSearchEl.value = "";
+        if (roasterFilter) roasterFilter.value = "";
+        if (roastFilter) roastFilter.value = "";
         const roasterLabel = document.getElementById("roaster-dropdown-label");
         if (roasterLabel) roasterLabel.textContent = "Todas as Torrefa\xE7\xF5es";
         const roastLabel = document.getElementById("roast-dropdown-label");
@@ -451,37 +467,37 @@
         loadCafes();
       });
     }
-    initCustomDropdowns();
     const mapToggleBtn = document.getElementById("toggle-map-btn");
     const mapContainer = document.getElementById("map-container");
     const mapBtnText = document.getElementById("map-btn-text");
     const mapBadge = document.getElementById("map-badge");
-    if (!mapToggleBtn) return;
-    mapToggleBtn.addEventListener("click", () => {
-      mapIsVisible = !mapIsVisible;
-      if (mapIsVisible) {
-        mapContainer?.classList.add("open");
-        if (mapBtnText) mapBtnText.textContent = "Ocultar Mapa";
-        mapToggleBtn.classList.add("bg-primary", "text-surface-container-lowest");
-        mapToggleBtn.classList.remove("bg-surface-container", "text-primary");
-        mapBadge?.classList.remove("hidden");
-        setTimeout(() => {
-          map.invalidateSize();
-          if (markers.length > 0) {
-            const group = L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.1));
-          }
-        }, 300);
-      } else {
-        mapContainer?.classList.remove("open");
-        if (mapBtnText) mapBtnText.textContent = "Ver Mapa";
-        mapToggleBtn.classList.remove("bg-primary", "text-surface-container-lowest");
-        mapToggleBtn.classList.add("bg-surface-container", "text-primary");
-        mapBadge?.classList.add("hidden");
-      }
-    });
+    if (mapToggleBtn) {
+      mapToggleBtn.addEventListener("click", () => {
+        mapIsVisible = !mapIsVisible;
+        if (mapIsVisible) {
+          mapContainer?.classList.add("open");
+          if (mapBtnText) mapBtnText.textContent = "Ocultar Mapa";
+          mapToggleBtn.classList.add("bg-primary", "text-surface-container-lowest");
+          mapToggleBtn.classList.remove("bg-surface-container", "text-primary");
+          mapBadge?.classList.remove("hidden");
+          setTimeout(() => {
+            map.invalidateSize();
+            if (markers.length > 0) {
+              const group = L.featureGroup(markers);
+              map.fitBounds(group.getBounds().pad(0.1));
+            }
+          }, 300);
+        } else {
+          mapContainer?.classList.remove("open");
+          if (mapBtnText) mapBtnText.textContent = "Ver Mapa";
+          mapToggleBtn.classList.remove("bg-primary", "text-surface-container-lowest");
+          mapToggleBtn.classList.add("bg-surface-container", "text-primary");
+          mapBadge?.classList.add("hidden");
+        }
+      });
+    }
   });
-  window["toggleGrain"] = function(id) {
+  window.toggleGrain = function(id) {
     const content = document.getElementById(`content-${id}`);
     const chevron = document.getElementById(`chevron-${id}`);
     if (content && chevron) {
@@ -489,4 +505,6 @@
       chevron.classList.toggle("rotated");
     }
   };
+  window.markers = markers;
+  window.map = map;
 })();
