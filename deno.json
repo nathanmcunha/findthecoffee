@@ -1,0 +1,56 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": true
+  },
+  "lint": {
+    "include": ["frontend/src/"],
+    "exclude": ["node_modules/", "frontend/script.js", "frontend/src/leaflet.d.ts"],
+    "rules": {
+      "tags": ["recommended", "jsx", "react"],
+      "include": [
+        "ban-untagged-todo",
+        "no-console",
+        "no-debugger",
+        "prefer-const",
+        "no-var",
+        "no-unused-vars",
+        "no-explicit-any",
+        "no-non-null-assertion",
+        "require-await",
+        "return-await",
+        "no-import-assigned",
+        "no-async-promise-executor",
+        "no-irregular-whitespace",
+        "valid-typeof",
+        "no-empty-character-class",
+        "no-misleading-character-class",
+        "use-isnan",
+        "valid-typeof"
+      ],
+      "exclude": []
+    }
+  },
+  "fmt": {
+    "include": ["frontend/src/"],
+    "exclude": ["node_modules/", "frontend/script.js"],
+    "lineWidth": 100,
+    "indentWidth": 2,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "tasks": {
+    "check": "deno check frontend/src/main.ts",
+    "lint": "deno lint frontend/src/",
+    "fmt": "deno fmt frontend/src/"
+  }
+}

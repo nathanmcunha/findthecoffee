@@ -4,7 +4,9 @@ function createSensoryBar(label: string, value: number | null): string {
   if (!value) return "";
   let dots = "";
   for (let i = 1; i <= 5; i++) {
-    dots += `<div class="w-3 h-1 rounded-full ${i <= value ? "bg-primary" : "bg-outline-variant"}"></div>`;
+    dots += `<div class="w-3 h-1 rounded-full ${
+      i <= value ? "bg-primary" : "bg-outline-variant"
+    }"></div>`;
   }
   return `
     <div class="text-center px-3 border-r border-outline-variant/20 last:border-r-0">
@@ -17,15 +19,20 @@ function createSensoryBar(label: string, value: number | null): string {
 function renderGrainItem(bean: Bean, cafeId: string, idx: number): string {
   const id = `grain-${cafeId}-${bean.id}`;
   const hasSensory = bean.acidity || bean.sweetness || bean.body;
-  const tastingNotes = bean.tasting_notes && bean.tasting_notes.length > 0 ? bean.tasting_notes.join(", ") : null;
+  const tastingNotes = bean.tasting_notes && bean.tasting_notes.length > 0
+    ? bean.tasting_notes.join(", ")
+    : null;
   const altitude = bean.altitude ? `${bean.altitude}m` : null;
-  
+
   // Check if bean has any detailed information
-  const hasDetails = tastingNotes || bean.variety || bean.roast_level || bean.processing || 
-                     bean.producer || bean.farm || bean.region || altitude || hasSensory;
+  const hasDetails = tastingNotes || bean.variety || bean.roast_level ||
+    bean.processing ||
+    bean.producer || bean.farm || bean.region || altitude || hasSensory;
 
   return `
-    <div class="group border border-outline-variant/15 rounded-xl p-5 hover:bg-surface-container-low transition-all ${hasDetails ? "cursor-pointer" : ""}"
+    <div class="group border border-outline-variant/15 rounded-xl p-5 hover:bg-surface-container-low transition-all ${
+    hasDetails ? "cursor-pointer" : ""
+  }"
          ${hasDetails ? `onclick="toggleGrain('${id}')"` : ""}>
 
       <div class="flex justify-between items-center">
@@ -36,108 +43,159 @@ function renderGrainItem(bean: Bean, cafeId: string, idx: number): string {
           <div>
             <p class="font-bold text-primary text-sm">${bean.name}</p>
             <p class="text-xs text-on-surface-variant uppercase">
-              ${[bean.roaster_name, bean.processing, altitude].filter(Boolean).join(" · ") || "Detalhes não disponíveis"}
+              ${
+    [bean.roaster_name, bean.processing, altitude].filter(Boolean).join(
+      " · ",
+    ) || "Detalhes não disponíveis"
+  }
             </p>
           </div>
         </div>
         ${
-          hasDetails
-            ? `
+    hasDetails
+      ? `
           <i data-lucide="chevron-down" id="chevron-${id}"
-             class="chevron-icon w-5 h-5 text-outline-variant group-hover:text-primary transition-colors flex-shrink-0 ${idx === 0 ? "rotated" : ""}"></i>
+             class="chevron-icon w-5 h-5 text-outline-variant group-hover:text-primary transition-colors flex-shrink-0 ${
+        idx === 0 ? "rotated" : ""
+      }"></i>
         `
-            : ""
-        }
+      : ""
+  }
       </div>
 
       ${
-        hasDetails
-          ? `
-        <div id="content-${id}" class="grain-content ${idx === 0 ? "expanded" : ""}">
+    hasDetails
+      ? `
+        <div id="content-${id}" class="grain-content ${
+        idx === 0 ? "expanded" : ""
+      }">
           <div class="mt-6 pt-6 border-t border-outline-variant/10 grid grid-cols-2 md:grid-cols-4 gap-y-5 gap-x-4">
-            ${tastingNotes ? `
+            ${
+        tastingNotes
+          ? `
               <div class="col-span-full">
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Notas de Sabor</p>
                 <p class="text-sm font-medium text-on-surface">${tastingNotes}</p>
               </div>
-            ` : ""}
-            ${bean.variety ? `
+            `
+          : ""
+      }
+            ${
+        bean.variety
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Variedade</p>
                 <p class="text-sm font-medium text-on-surface">${bean.variety}</p>
               </div>
-            ` : ""}
-            ${bean.processing ? `
+            `
+          : ""
+      }
+            ${
+        bean.processing
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Processo</p>
                 <p class="text-sm font-medium text-on-surface">${bean.processing}</p>
               </div>
-            ` : ""}
-            ${bean.roast_level ? `
+            `
+          : ""
+      }
+            ${
+        bean.roast_level
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Torra</p>
                 <p class="text-sm font-medium text-on-surface">${bean.roast_level}</p>
               </div>
-            ` : ""}
-            ${altitude ? `
+            `
+          : ""
+      }
+            ${
+        altitude
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Altitude</p>
                 <p class="text-sm font-medium text-on-surface">${altitude}</p>
               </div>
-            ` : ""}
-            ${bean.producer ? `
+            `
+          : ""
+      }
+            ${
+        bean.producer
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Produtor</p>
                 <p class="text-sm font-medium text-on-surface">${bean.producer}</p>
               </div>
-            ` : ""}
-            ${bean.farm ? `
+            `
+          : ""
+      }
+            ${
+        bean.farm
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Fazenda</p>
                 <p class="text-sm font-medium text-on-surface">${bean.farm}</p>
               </div>
-            ` : ""}
-            ${bean.region ? `
+            `
+          : ""
+      }
+            ${
+        bean.region
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Região</p>
                 <p class="text-sm font-medium text-on-surface">${bean.region}</p>
               </div>
-            ` : ""}
-            ${bean.origin ? `
+            `
+          : ""
+      }
+            ${
+        bean.origin
+          ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Origem</p>
                 <p class="text-sm font-medium text-on-surface">${bean.origin}</p>
               </div>
-            ` : ""}
-            ${hasSensory ? `
+            `
+          : ""
+      }
+            ${
+        hasSensory
+          ? `
               <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-center gap-2">
                 ${createSensoryBar("Acidez", bean.acidity)}
                 ${createSensoryBar("Doçura", bean.sweetness)}
                 ${createSensoryBar("Corpo", bean.body)}
               </div>
-            ` : ""}
+            `
+          : ""
+      }
           </div>
         </div>
       `
-          : ""
-      }
+      : ""
+  }
     </div>
   `;
 }
 
 function renderVenueCard(venue: Cafe): string {
   const beans = venue.matching_beans || [];
-  const beansHTML =
-    beans.length > 0
-      ? `
+  const beansHTML = beans.length > 0
+    ? `
       <h4 class="text-xs font-bold text-primary mb-4 uppercase tracking-tighter">
         Grãos Disponíveis
       </h4>
       <div class="space-y-4">
-        ${beans.map((bean, idx) => renderGrainItem(bean, venue.id, idx)).join("")}
+        ${
+      beans.map((bean: Bean, idx: number) =>
+        renderGrainItem(bean, venue.id, idx)
+      ).join("")
+    }
       </div>
     `
-      : `<p class="text-sm text-on-surface-variant italic text-center py-6">Nenhum grão inventariado no momento.</p>`;
+    : `<p class="text-sm text-on-surface-variant italic text-center py-6">Nenhum grão inventariado no momento.</p>`;
 
   return `
     <div class="bg-surface-container-low rounded-xl p-1 transition-all">
@@ -167,7 +225,9 @@ function renderVenueCard(venue: Cafe): string {
 export function renderResults(venues: Cafe[]): void {
   const countEl = document.getElementById("results-count");
   if (countEl) {
-    countEl.textContent = `${venues.length} ${venues.length === 1 ? "encontrado" : "encontrados"}`;
+    countEl.textContent = `${venues.length} ${
+      venues.length === 1 ? "encontrado" : "encontrados"
+    }`;
   }
 
   const list = document.getElementById("results-list");

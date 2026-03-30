@@ -6,13 +6,21 @@ function setDropdownOpen(
   open: boolean,
 ): void {
   if (open) {
-    btn.classList.remove("rounded-md", "border-outline-variant/30", "hover:border-primary");
+    btn.classList.remove(
+      "rounded-md",
+      "border-outline-variant/30",
+      "hover:border-primary",
+    );
     btn.classList.add("rounded-t-md", "border-primary");
     chevron?.classList.add("rotate-180");
     chevron?.classList.remove("group-hover:translate-y-0.5");
   } else {
     btn.classList.remove("rounded-t-md", "border-primary");
-    btn.classList.add("rounded-md", "border-outline-variant/30", "hover:border-primary");
+    btn.classList.add(
+      "rounded-md",
+      "border-outline-variant/30",
+      "hover:border-primary",
+    );
     chevron?.classList.remove("rotate-180");
     chevron?.classList.add("group-hover:translate-y-0.5");
   }
@@ -65,7 +73,9 @@ export function initCustomDropdowns(): void {
     const btn = document.getElementById(btnId);
     const panel = document.getElementById(panelId);
     const label = document.getElementById(labelId);
-    const select = document.getElementById(selectId) as HTMLSelectElement | null;
+    const select = document.getElementById(selectId) as
+      | HTMLSelectElement
+      | null;
     const chevron = document.getElementById(chevronId);
     if (!btn || !panel) return;
 
@@ -80,7 +90,9 @@ export function initCustomDropdowns(): void {
     });
 
     panel.addEventListener("click", (e) => {
-      const item = (e.target as HTMLElement).closest<HTMLElement>("[data-value]");
+      const item = (e.target as HTMLElement).closest<HTMLElement>(
+        "[data-value]",
+      );
       if (!item) return;
       if (label) label.textContent = item.textContent?.trim() ?? "";
       if (select) {
@@ -98,12 +110,18 @@ export function initCustomDropdowns(): void {
 export function populateRoasterDropdown(
   roasters: Roaster[],
 ): void {
-  const select = document.getElementById("roaster-filter") as HTMLSelectElement | null;
+  const select = document.getElementById("roaster-filter") as
+    | HTMLSelectElement
+    | null;
   const list = document.getElementById("roaster-dropdown-list");
   if (!select) return;
 
   while (select.options.length > 1) select.remove(1);
-  if (list) while (list.children.length > 1) list.removeChild(list.lastChild!);
+  if (list) {
+    while (list.children.length > 1) {
+      list.removeChild(list.lastChild!);
+    }
+  }
 
   roasters.forEach((roaster) => {
     const opt = document.createElement("option");

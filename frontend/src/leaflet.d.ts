@@ -51,7 +51,9 @@ declare namespace L {
     getBounds(): LatLngBoundsExpression;
   }
 
-  interface DivIcon {}
+  interface DivIcon {
+    [key: string]: unknown;
+  }
 
   interface Map {
     setView(latlng: [number, number], zoom: number): this;
@@ -62,11 +64,14 @@ declare namespace L {
 }
 
 // Declare L as a value (namespace + variable merge)
-declare var L: {
+declare const L: {
   map(id: string, options?: L.MapOptions): L.Map;
   tileLayer(urlTemplate: string, options?: L.TileLayerOptions): L.TileLayer;
   marker(latlng: [number, number], options?: L.MarkerOptions): L.Marker;
-  circleMarker(latlng: [number, number], options?: L.CircleMarkerOptions): L.CircleMarker;
+  circleMarker(
+    latlng: [number, number],
+    options?: L.CircleMarkerOptions,
+  ): L.CircleMarker;
   divIcon(options?: L.DivIconOptions): L.DivIcon;
   featureGroup(layers: L.Layer[]): L.FeatureGroup;
 };
