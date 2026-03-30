@@ -1,25 +1,28 @@
 export interface Roaster {
-  id: number;
+  id: string;
   name: string;
+  website?: string | null;
+  location?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface Bean {
-  id: number;
+  id: string;
   name: string;
   roaster_name: string | null;
-  tasting_notes: string[] | null;
-  variety: string | null;
-  processing: string | null;
-  altitude: number | null;
   roast_level: string | null;
-  acidity: number | null;
-  sweetness: number | null;
-  body: number | null;
+  origin: string | null;
 }
 
 export interface Cafe {
-  id: number;
+  id: string;
   name: string;
   location: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  website?: string | null;
   matching_beans: Bean[];
 }
