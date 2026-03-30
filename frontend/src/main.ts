@@ -2,7 +2,13 @@
 /// <reference path="./leaflet.d.ts" />
 
 import { fetchCafes, fetchRoasters } from "./api.ts";
-import { getUserLocation, initMap, map, markers, updateMarkers } from "./map.ts";
+import {
+  getUserLocation,
+  initMap,
+  map,
+  markers,
+  updateMarkers,
+} from "./map.ts";
 import { initCustomDropdowns, populateRoasterDropdown } from "./dropdowns.ts";
 import { renderResults, showErrorState, showLoadingState } from "./ui.ts";
 
@@ -18,9 +24,13 @@ let isFirstLoad = true;
 
 function getFilters() {
   return {
-    query: (document.getElementById("global-search") as HTMLInputElement | null)?.value ?? "",
-    roast: (document.getElementById("roast-filter") as HTMLSelectElement | null)?.value ?? "",
-    roasterId: (document.getElementById("roaster-filter") as HTMLSelectElement | null)?.value ?? "",
+    query: (document.getElementById("global-search") as HTMLInputElement | null)
+      ?.value ?? "",
+    roast: (document.getElementById("roast-filter") as HTMLSelectElement | null)
+      ?.value ?? "",
+    roasterId:
+      (document.getElementById("roaster-filter") as HTMLSelectElement | null)
+        ?.value ?? "",
   };
 }
 
@@ -44,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetchRoasters()
     .then(populateRoasterDropdown)
-    .catch((err) => console.error("Erro ao buscar torrefações:", err));
+    .catch((err: unknown) => console.error("Erro ao buscar torrefações:", err));
 
   loadCafes();
 
@@ -78,7 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (clearFilters) {
     clearFilters.addEventListener("click", () => {
       (document.getElementById("global-search") as HTMLInputElement).value = "";
-      (document.getElementById("roaster-filter") as HTMLSelectElement).value = "";
+      (document.getElementById("roaster-filter") as HTMLSelectElement).value =
+        "";
       (document.getElementById("roast-filter") as HTMLSelectElement).value = "";
       const roasterLabel = document.getElementById("roaster-dropdown-label");
       if (roasterLabel) roasterLabel.textContent = "Todas as Torrefações";
@@ -115,7 +126,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       mapContainer?.classList.remove("open");
       if (mapBtnText) mapBtnText.textContent = "Ver Mapa";
-      mapToggleBtn.classList.remove("bg-primary", "text-surface-container-lowest");
+      mapToggleBtn.classList.remove(
+        "bg-primary",
+        "text-surface-container-lowest",
+      );
       mapToggleBtn.classList.add("bg-surface-container", "text-primary");
       mapBadge?.classList.add("hidden");
     }
@@ -123,7 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Exposed globally for inline onclick handlers in rendered HTML
-(window as unknown as Record<string, unknown>)["toggleGrain"] = function (id: string): void {
+(window as unknown as Record<string, unknown>)["toggleGrain"] = function (
+  id: string,
+): void {
   const content = document.getElementById(`content-${id}`);
   const chevron = document.getElementById(`chevron-${id}`);
   if (content && chevron) {

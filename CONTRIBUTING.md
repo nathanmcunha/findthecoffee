@@ -60,3 +60,87 @@ If you are the repository owner, please enable these settings on GitHub:
    - [x] **Require a pull request before merging**
    - [x] **Require status checks to pass before merging** (e.g., CI)
    - [x] **Require linear history** (THIS IS CRITICAL 🚨)
+
+## 🪝 Pre-Commit Hooks (Automated Quality Gates)
+
+We use **git hooks** to automatically run quality checks before every commit. This catches issues early and maintains code quality.
+
+### Installing Pre-Commit Hooks
+
+After cloning the repository, run:
+
+```bash
+mise run hooks:install
+```
+
+This configures git to run our pre-commit checks automatically.
+
+### What Checks Run?
+
+Every `git commit` will automatically run:
+
+1. **Backend Tests** - All pytest tests (quick mode)
+2. **Frontend Lint** - Deno lint for TypeScript
+3. **Frontend Format** - Deno fmt format check
+4. **TypeScript Types** - Deno type check
+5. **Python Types** - Basedpyright (if installed)
+
+### Manual Hook Execution
+
+To manually run the pre-commit checks:
+
+```bash
+mise run hooks:run
+```
+
+### Fixing Common Issues
+
+**Formatting issues:**
+```bash
+mise run js:format  # Auto-fixes frontend formatting
+```
+
+**Linting issues:**
+```bash
+mise run js:lint    # Show linting errors
+```
+
+**Type errors:**
+```bash
+mise run ts:check   # Frontend types
+.venv/bin/basedpyright backend/  # Backend types
+```
+
+### Uninstalling Hooks
+
+If needed, you can disable the hooks:
+
+```bash
+mise run hooks:uninstall
+```
+
+## 🧑‍💻 Development Workflow with Hooks
+
+1. **Install hooks once:**
+   ```bash
+   mise run hooks:install
+   ```
+
+2. **Develop normally:**
+   ```bash
+   git checkout -b feat/my-feature
+   # ... make changes ...
+   ```
+
+3. **Commit (hooks run automatically):**
+   ```bash
+   git commit -m "feat: add new feature"
+   # Pre-commit checks run automatically
+   ```
+
+4. **If checks fail:** Fix the issues and commit again.
+
+5. **Push and create PR:**
+   ```bash
+   git push -u origin feat/my-feature
+   ```

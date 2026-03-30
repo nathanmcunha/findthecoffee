@@ -1,5 +1,6 @@
 [tools]
 python = "3.12"
+deno = "latest"
 
 [env]
 _.python.venv = ".venv"
@@ -44,9 +45,13 @@ if [ ! -f frontend/esbuild ]; then
 fi
 """
 
+[tasks."js:lint"]
+description = "Lint TypeScript sources with deno lint"
+run = "deno lint frontend/src/"
+
 [tasks."ts:check"]
-description = "Type-check TypeScript sources with deno check"
-run = "deno check frontend/src/main.ts"
+description = "Type-check all TypeScript sources with deno check"
+run = "deno check frontend/src/*.ts"
 
 [tasks."js:build"]
 description = "Bundle TypeScript → script.js via esbuild"
@@ -57,6 +62,49 @@ run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/scrip
 description = "Watch and rebuild TypeScript on changes"
 depends = ["esbuild:download"]
 run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --watch"
+
+[tasks."js:format"]
+description = "Format TypeScript sources with deno fmt"
+run = "deno fmt frontend/src/"
+
+[tasks."js:check"]
+description = "Full JS check (eslint + format + type)"
+depends = ["js:lint", "js:format", "ts:check"]
+run = "echo 'All checks passed'"
+
+[tasks."build:prod"]
+description = "Production build with minification"
+depends = ["tailwind:download", "esbuild:download", "js:check"]
+run = """
+./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --minify
+./frontend/esbuild frontend/src/main.ts --bundle --minify --sourcemap --outfile=frontend/script.js
+"""
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = """
+rm -f frontend/script.js frontend/style.css frontend/tailwindcss frontend/esbuild
+rm -rf frontend/dist
+"""
+
+[tasks."hooks:install"]
+description = "Install git hooks for pre-commit checks"
+run = """
+git config core.hooksPath .git-hooks
+echo "Git hooks installed successfully!"
+echo "Pre-commit checks will run on every commit."
+"""
+
+[tasks."hooks:uninstall"]
+description = "Remove git hooks"
+run = """
+git config --unset core.hooksPath
+echo "Git hooks removed."
+"""
+
+[tasks."hooks:run"]
+description = "Manually run pre-commit checks"
+run = ".git-hooks/pre-commit"
 
 [tasks."tailwind:watch"]
 description = "Watch and compile Tailwind CSS"
@@ -74,6 +122,14 @@ python -m http.server --directory frontend 8080
 [tasks.test]
 description = "Run pytest suite"
 run = "python -m pytest backend/tests"
+
+[tasks."test:quick"]
+description = "Run pytest suite (fast, no coverage)"
+run = "python -m pytest backend/tests -x -q"
+
+[tasks."test:quiet"]
+description = "Run pytest suite (quiet mode for hooks)"
+run = "python -m pytest backend/tests -x -q --tb=no"
 
 [tasks."test:cov"]
 description = "Run pytest with coverage report"

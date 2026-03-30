@@ -9,7 +9,7 @@ export function initMap(): void {
     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
     {
       attribution: "&copy; OpenStreetMap &copy; CARTO",
-      r: window.devicePixelRatio > 1 ? "@2x" : "",
+      r: globalThis.devicePixelRatio > 1 ? "@2x" : "",
     },
   ).addTo(map);
 }
@@ -50,7 +50,9 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
     const marker = L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
         <div style="font-family:'Manrope',sans-serif;">
           <strong style="color:#271310;display:block;margin-bottom:4px;">${venue.name}</strong>
-          <span style="font-size:12px;color:#504442;">${venue.location || venue.address || ""}</span>
+          <span style="font-size:12px;color:#504442;">${
+      venue.location || venue.address || ""
+    }</span>
         </div>
       `);
     markers.push(marker);
@@ -58,7 +60,9 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
 
   const badgeText = document.getElementById("map-badge-text");
   if (badgeText) {
-    badgeText.textContent = `${venues.length} ${venues.length === 1 ? "local" : "locais"} no mapa`;
+    badgeText.textContent = `${venues.length} ${
+      venues.length === 1 ? "local" : "locais"
+    } no mapa`;
   }
 
   if (markers.length > 0 && mapIsVisible) {
@@ -73,10 +77,13 @@ export function getUserLocation(): void {
     return;
   }
 
-  const btn = document.getElementById("near-me-btn") as HTMLButtonElement | null;
+  const btn = document.getElementById("near-me-btn") as
+    | HTMLButtonElement
+    | null;
   if (!btn) return;
   const originalHtml = btn.innerHTML;
-  btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Localizando...`;
+  btn.innerHTML =
+    `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Localizando...`;
   lucide.createIcons();
 
   navigator.geolocation.getCurrentPosition(
@@ -85,7 +92,8 @@ export function getUserLocation(): void {
 
       const mapContainer = document.getElementById("map-container");
       if (mapContainer && !mapContainer.classList.contains("open")) {
-        (document.getElementById("toggle-map-btn") as HTMLButtonElement | null)?.click();
+        (document.getElementById("toggle-map-btn") as HTMLButtonElement | null)
+          ?.click();
       }
 
       L.circleMarker([latitude, longitude], {

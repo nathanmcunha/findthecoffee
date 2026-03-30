@@ -34,3 +34,10 @@ tailwindcss
 Locust_*.htmlNOTES.md
 
 .qwen/
+
+# Frontend build artifacts
+frontend/script.js
+frontend/style.css
+frontend/esbuild
+frontend/tailwindcss
+frontend/dist/
