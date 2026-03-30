@@ -7,19 +7,22 @@ function createSensoryBar(label: string, value: number | null): string {
     dots += `<div class="w-3 h-1 rounded-full ${i <= value ? "bg-primary" : "bg-outline-variant"}"></div>`;
   }
   return `
-    <div class="text-center px-4 border-r border-outline-variant/20 last:border-r-0">
+    <div class="text-center px-3 border-r border-outline-variant/20 last:border-r-0">
       <p class="text-[10px] uppercase font-bold mb-1">${label}</p>
       <div class="flex gap-0.5">${dots}</div>
     </div>
   `;
 }
 
-function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
+function renderGrainItem(bean: Bean, cafeId: string, idx: number): string {
   const id = `grain-${cafeId}-${bean.id}`;
   const hasSensory = bean.acidity || bean.sweetness || bean.body;
-  const tastingNotes = bean.tasting_notes ? bean.tasting_notes.join(", ") : null;
+  const tastingNotes = bean.tasting_notes && bean.tasting_notes.length > 0 ? bean.tasting_notes.join(", ") : null;
   const altitude = bean.altitude ? `${bean.altitude}m` : null;
-  const hasDetails = tastingNotes || bean.variety || bean.roast_level || hasSensory;
+  
+  // Check if bean has any detailed information
+  const hasDetails = tastingNotes || bean.variety || bean.roast_level || bean.processing || 
+                     bean.producer || bean.farm || bean.region || altitude || hasSensory;
 
   return `
     <div class="group border border-outline-variant/15 rounded-xl p-5 hover:bg-surface-container-low transition-all ${hasDetails ? "cursor-pointer" : ""}"
@@ -51,9 +54,9 @@ function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
         hasDetails
           ? `
         <div id="content-${id}" class="grain-content ${idx === 0 ? "expanded" : ""}">
-          <div class="mt-6 pt-6 border-t border-outline-variant/10 grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-4">
+          <div class="mt-6 pt-6 border-t border-outline-variant/10 grid grid-cols-2 md:grid-cols-4 gap-y-5 gap-x-4">
             ${tastingNotes ? `
-              <div>
+              <div class="col-span-full">
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Notas de Sabor</p>
                 <p class="text-sm font-medium text-on-surface">${tastingNotes}</p>
               </div>
@@ -64,14 +67,50 @@ function renderGrainItem(bean: Bean, cafeId: number, idx: number): string {
                 <p class="text-sm font-medium text-on-surface">${bean.variety}</p>
               </div>
             ` : ""}
+            ${bean.processing ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Processo</p>
+                <p class="text-sm font-medium text-on-surface">${bean.processing}</p>
+              </div>
+            ` : ""}
             ${bean.roast_level ? `
               <div>
                 <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Torra</p>
                 <p class="text-sm font-medium text-on-surface">${bean.roast_level}</p>
               </div>
             ` : ""}
+            ${altitude ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Altitude</p>
+                <p class="text-sm font-medium text-on-surface">${altitude}</p>
+              </div>
+            ` : ""}
+            ${bean.producer ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Produtor</p>
+                <p class="text-sm font-medium text-on-surface">${bean.producer}</p>
+              </div>
+            ` : ""}
+            ${bean.farm ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Fazenda</p>
+                <p class="text-sm font-medium text-on-surface">${bean.farm}</p>
+              </div>
+            ` : ""}
+            ${bean.region ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Região</p>
+                <p class="text-sm font-medium text-on-surface">${bean.region}</p>
+              </div>
+            ` : ""}
+            ${bean.origin ? `
+              <div>
+                <p class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-1">Origem</p>
+                <p class="text-sm font-medium text-on-surface">${bean.origin}</p>
+              </div>
+            ` : ""}
             ${hasSensory ? `
-              <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-between">
+              <div class="col-span-full bg-surface-container-high/40 p-3 rounded-lg flex justify-center gap-2">
                 ${createSensoryBar("Acidez", bean.acidity)}
                 ${createSensoryBar("Doçura", bean.sweetness)}
                 ${createSensoryBar("Corpo", bean.body)}

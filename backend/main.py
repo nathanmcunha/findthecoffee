@@ -139,6 +139,9 @@ class BeanSearchParams(BaseModel):
     roast: str | None = Field(default=None, max_length=50)
     origin: str | None = Field(default=None, max_length=100)
     roaster_id: uuid.UUID | None = None
+    variety: str | None = Field(default=None, max_length=100)
+    processing: str | None = Field(default=None, max_length=50)
+    region: str | None = Field(default=None, max_length=200)
     page: int = Field(default=1, ge=1)
     per_page: int = Field(default=50, ge=1, le=100)
 
@@ -148,6 +151,16 @@ class BeanCreate(BaseModel):
     roaster_id: uuid.UUID | None = None
     roast_level: str | None = Field(default=None, max_length=50)
     origin: str | None = Field(default=None, max_length=100)
+    variety: str | None = Field(default=None, max_length=100)
+    processing: str | None = Field(default=None, max_length=50)
+    altitude: int | None = Field(default=None, ge=0, le=12000)
+    producer: str | None = Field(default=None, max_length=200)
+    farm: str | None = Field(default=None, max_length=200)
+    region: str | None = Field(default=None, max_length=200)
+    tasting_notes: list[str] | None = None
+    acidity: int | None = Field(default=None, ge=1, le=5)
+    sweetness: int | None = Field(default=None, ge=1, le=5)
+    body: int | None = Field(default=None, ge=1, le=5)
 
 
 class NearbySearchParams(BaseModel):
@@ -352,14 +365,20 @@ def add_to_inventory(cafe_id: uuid.UUID):
 
 @app.route("/api/beans", methods=["GET"])
 def list_beans():
-    """Return a list of all coffee beans. Supports filters: ?roast=medium&origin=ethiopia&roaster_id=1"""
+    """Return a list of all coffee beans. Supports filters: ?roast=medium&origin=ethiopia&roaster_id=1&variety=bourbon&processing=natural&region=minas"""
     try:
         params = BeanSearchParams.model_validate(request.args.to_dict())
         offset = (params.page - 1) * params.per_page
 
         beans = bean_repo.search(
-            roast_level=params.roast, origin=params.origin, roaster_id=params.roaster_id,
-            limit=params.per_page, offset=offset
+            roast_level=params.roast,
+            origin=params.origin,
+            roaster_id=params.roaster_id,
+            variety=params.variety,
+            processing=params.processing,
+            region=params.region,
+            limit=params.per_page,
+            offset=offset
         )
         return jsonify({
             "data": beans,
@@ -402,6 +421,16 @@ def add_bean():
             roaster_id=bean_data.roaster_id,
             roast_level=bean_data.roast_level,
             origin=bean_data.origin,
+            variety=bean_data.variety,
+            processing=bean_data.processing,
+            altitude=bean_data.altitude,
+            producer=bean_data.producer,
+            farm=bean_data.farm,
+            region=bean_data.region,
+            tasting_notes=bean_data.tasting_notes,
+            acidity=bean_data.acidity,
+            sweetness=bean_data.sweetness,
+            body=bean_data.body,
         )
         return jsonify({"id": bean_id, "status": "created"}), 201
     except ValidationError as e:

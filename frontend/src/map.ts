@@ -19,9 +19,14 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
   markers = [];
 
   venues.forEach((venue) => {
-    // Use actual coordinates if available, otherwise use random fallback
-    const lat = venue.latitude ?? (-23.5505 + (Math.random() - 0.5) * 5);
-    const lng = venue.longitude ?? (-46.6333 + (Math.random() - 0.5) * 5);
+    // Use actual geolocation coordinates from API
+    const lat = venue.latitude;
+    const lng = venue.longitude;
+
+    // Skip venues without coordinates
+    if (lat === null || lng === null) {
+      return;
+    }
 
     const pinStyle = `
       background-color: #271310;
@@ -45,7 +50,7 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
     const marker = L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
         <div style="font-family:'Manrope',sans-serif;">
           <strong style="color:#271310;display:block;margin-bottom:4px;">${venue.name}</strong>
-          <span style="font-size:12px;color:#504442;">${venue.location || ""}</span>
+          <span style="font-size:12px;color:#504442;">${venue.location || venue.address || ""}</span>
         </div>
       `);
     markers.push(marker);

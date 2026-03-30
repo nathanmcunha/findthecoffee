@@ -290,7 +290,16 @@ def test_list_beans_no_filters_still_calls_search(client, mocker):
     res = client.get("/api/beans")
 
     assert res.status_code == 200
-    mock_search.assert_called_once_with(roast_level=None, origin=None, roaster_id=None, limit=50, offset=0)
+    mock_search.assert_called_once_with(
+        roast_level=None,
+        origin=None,
+        roaster_id=None,
+        variety=None,
+        processing=None,
+        region=None,
+        limit=50,
+        offset=0
+    )
 
 
 # ============== 500 ERROR PATH TESTS ==============

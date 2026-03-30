@@ -32,3 +32,5 @@ gha-creds-*.json
 
 tailwindcss
 Locust_*.htmlNOTES.md
+
+.qwen/

@@ -248,6 +248,8 @@ class CoffeeBeanRepository:
         """Fetches all coffee beans with roaster information and pagination."""
         query = """
             SELECT b.id, b.name, b.roast_level, b.origin, b.roaster_id, r.name as roaster_name,
+                   b.variety, b.processing, b.altitude, b.producer, b.farm, b.region,
+                   b.tasting_notes, b.acidity, b.sweetness, b.body,
                    b.created_at, b.updated_at
             FROM coffee_beans b
             LEFT JOIN roasters r ON b.roaster_id = r.id
@@ -262,6 +264,8 @@ class CoffeeBeanRepository:
         """Fetches a single coffee bean by ID with roaster information."""
         query = """
             SELECT b.id, b.name, b.roast_level, b.origin, b.roaster_id, r.name as roaster_name,
+                   b.variety, b.processing, b.altitude, b.producer, b.farm, b.region,
+                   b.tasting_notes, b.acidity, b.sweetness, b.body,
                    b.created_at, b.updated_at
             FROM coffee_beans b
             LEFT JOIN roasters r ON b.roaster_id = r.id
@@ -277,17 +281,45 @@ class CoffeeBeanRepository:
         roaster_id: uuid.UUID | None = None,
         roast_level: str | None = None,
         origin: str | None = None,
+        variety: str | None = None,
+        processing: str | None = None,
+        altitude: int | None = None,
+        producer: str | None = None,
+        farm: str | None = None,
+        region: str | None = None,
+        tasting_notes: list[str] | None = None,
+        acidity: int | None = None,
+        sweetness: int | None = None,
+        body: int | None = None,
     ) -> uuid.UUID:
         """Inserts a new coffee bean and returns its ID."""
         query = """
-            INSERT INTO coffee_beans (name, roast_level, origin, roaster_id)
-            VALUES (:name, :roast_level, :origin, :roaster_id) RETURNING id
+            INSERT INTO coffee_beans (
+                name, roast_level, origin, roaster_id,
+                variety, processing, altitude, producer, farm, region,
+                tasting_notes, acidity, sweetness, body
+            )
+            VALUES (
+                :name, :roast_level, :origin, :roaster_id,
+                :variety, :processing, :altitude, :producer, :farm, :region,
+                :tasting_notes, :acidity, :sweetness, :body
+            ) RETURNING id
         """
         result = self.db.execute(query, {
             "name": name,
             "roast_level": roast_level,
             "origin": origin,
             "roaster_id": roaster_id,
+            "variety": variety,
+            "processing": processing,
+            "altitude": altitude,
+            "producer": producer,
+            "farm": farm,
+            "region": region,
+            "tasting_notes": tasting_notes,
+            "acidity": acidity,
+            "sweetness": sweetness,
+            "body": body,
         })
         row = result.fetchone()
         if row is None:
@@ -299,12 +331,17 @@ class CoffeeBeanRepository:
         roast_level: str | None = None,
         origin: str | None = None,
         roaster_id: uuid.UUID | None = None,
+        variety: str | None = None,
+        processing: str | None = None,
+        region: str | None = None,
         limit: int = 50,
         offset: int = 0
     ) -> list[dict[str, Any]]:
         """Searches beans with multiple filters."""
         query = """
-            SELECT b.id, b.name, b.roast_level, b.origin, b.roaster_id, r.name as roaster_name
+            SELECT b.id, b.name, b.roast_level, b.origin, b.roaster_id, r.name as roaster_name,
+                   b.variety, b.processing, b.altitude, b.producer, b.farm, b.region,
+                   b.tasting_notes, b.acidity, b.sweetness, b.body
             FROM coffee_beans b
             LEFT JOIN roasters r ON b.roaster_id = r.id
             WHERE b.deleted_at IS NULL
@@ -319,6 +356,15 @@ class CoffeeBeanRepository:
         if roaster_id is not None:
             query += " AND b.roaster_id = :roaster_id"
             params["roaster_id"] = roaster_id
+        if variety is not None:
+            query += " AND b.variety ILIKE :variety"
+            params["variety"] = f"%{variety}%"
+        if processing is not None:
+            query += " AND b.processing ILIKE :processing"
+            params["processing"] = f"%{processing}%"
+        if region is not None:
+            query += " AND b.region ILIKE :region"
+            params["region"] = f"%{region}%"
 
         query += " ORDER BY b.name LIMIT :limit OFFSET :offset"
         result = self.db.execute(query, params)
