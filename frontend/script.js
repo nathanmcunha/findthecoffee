@@ -4,7 +4,8 @@
   var API_BASE_URL = "http://localhost:5000/api";
   async function fetchRoasters() {
     const r = await fetch(`${API_BASE_URL}/roasters`);
-    return r.json();
+    const json = await r.json();
+    return json.data;
   }
   async function fetchCafes(filters) {
     const params = [];
@@ -14,7 +15,8 @@
     const qs = params.length ? `?${params.join("&")}` : "";
     const r = await fetch(`${API_BASE_URL}/cafes${qs}`);
     if (!r.ok) throw new Error("Falha na resposta da rede");
-    return r.json();
+    const json = await r.json();
+    return json.data;
   }
 
   // frontend/src/map.ts
@@ -34,8 +36,8 @@
     markers.forEach((m) => map.removeLayer(m));
     markers = [];
     venues.forEach((venue) => {
-      const lat = -23.5505 + (Math.random() - 0.5) * 5;
-      const lng = -46.6333 + (Math.random() - 0.5) * 5;
+      const lat = venue.latitude ?? -23.5505 + (Math.random() - 0.5) * 5;
+      const lng = venue.longitude ?? -46.6333 + (Math.random() - 0.5) * 5;
       const pinStyle = `
       background-color: #271310;
       width: 1.5rem; height: 1.5rem;
@@ -190,14 +192,14 @@
     if (list) while (list.children.length > 1) list.removeChild(list.lastChild);
     roasters.forEach((roaster) => {
       const opt = document.createElement("option");
-      opt.value = String(roaster.id);
+      opt.value = roaster.id;
       opt.textContent = roaster.name;
       select.appendChild(opt);
       if (list) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
-        btn.dataset["value"] = String(roaster.id);
+        btn.dataset["value"] = roaster.id;
         btn.textContent = roaster.name;
         list.appendChild(btn);
       }

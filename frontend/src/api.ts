@@ -2,9 +2,16 @@ import type { Cafe, Roaster } from "./types.ts";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
+interface PaginatedResponse<T> {
+  data: T[];
+  page: number;
+  per_page: number;
+}
+
 export async function fetchRoasters(): Promise<Roaster[]> {
   const r = await fetch(`${API_BASE_URL}/roasters`);
-  return r.json() as Promise<Roaster[]>;
+  const json = await r.json() as PaginatedResponse<Roaster>;
+  return json.data;
 }
 
 export interface CafeFilters {
@@ -22,5 +29,6 @@ export async function fetchCafes(filters: CafeFilters): Promise<Cafe[]> {
 
   const r = await fetch(`${API_BASE_URL}/cafes${qs}`);
   if (!r.ok) throw new Error("Falha na resposta da rede");
-  return r.json() as Promise<Cafe[]>;
+  const json = await r.json() as PaginatedResponse<Cafe>;
+  return json.data;
 }

@@ -1,3 +1,5 @@
+import type { Roaster } from "./types.ts";
+
 function setDropdownOpen(
   btn: HTMLElement,
   chevron: HTMLElement | null,
@@ -94,7 +96,7 @@ export function initCustomDropdowns(): void {
 }
 
 export function populateRoasterDropdown(
-  roasters: Array<{ id: number; name: string }>,
+  roasters: Roaster[],
 ): void {
   const select = document.getElementById("roaster-filter") as HTMLSelectElement | null;
   const list = document.getElementById("roaster-dropdown-list");
@@ -105,7 +107,7 @@ export function populateRoasterDropdown(
 
   roasters.forEach((roaster) => {
     const opt = document.createElement("option");
-    opt.value = String(roaster.id);
+    opt.value = roaster.id;
     opt.textContent = roaster.name;
     select.appendChild(opt);
 
@@ -114,7 +116,7 @@ export function populateRoasterDropdown(
       btn.type = "button";
       btn.className =
         "px-6 py-3 text-left font-body text-sm text-on-surface hover:bg-surface-container-high transition-colors border-b border-outline-variant/10";
-      btn.dataset["value"] = String(roaster.id);
+      btn.dataset["value"] = roaster.id;
       btn.textContent = roaster.name;
       list.appendChild(btn);
     }

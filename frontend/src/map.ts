@@ -19,8 +19,9 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
   markers = [];
 
   venues.forEach((venue) => {
-    const lat = -23.5505 + (Math.random() - 0.5) * 5;
-    const lng = -46.6333 + (Math.random() - 0.5) * 5;
+    // Use actual coordinates if available, otherwise use random fallback
+    const lat = venue.latitude ?? (-23.5505 + (Math.random() - 0.5) * 5);
+    const lng = venue.longitude ?? (-46.6333 + (Math.random() - 0.5) * 5);
 
     const pinStyle = `
       background-color: #271310;
