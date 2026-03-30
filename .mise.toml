@@ -73,8 +73,15 @@ python -m http.server --directory frontend 8080
 
 [tasks.test]
 description = "Run pytest suite"
-depends = ["up:infra"]
 run = "python -m pytest backend/tests"
+
+[tasks."test:cov"]
+description = "Run pytest with coverage report"
+run = "python -m pytest backend/tests --cov=backend --cov-report=term-missing"
+
+[tasks."test:cov:html"]
+description = "Run pytest with HTML coverage report"
+run = "python -m pytest backend/tests --cov=backend --cov-report=html --cov-report=term-missing"
 
 [tasks.dev]
 description = "Run backend and frontend in parallel"
