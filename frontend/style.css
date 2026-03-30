@@ -7,6 +7,7 @@
     --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
+    --color-gray-600: oklch(44.6% 0.03 256.802);
     --spacing: 0.25rem;
     --breakpoint-2xl: 96rem;
     --container-xs: 20rem;
@@ -72,7 +73,7 @@
     --color-surface-container-highest: #e2e2e2;
     --color-surface-container-lowest: #ffffff;
     --color-on-surface: #1a1c1c;
-    --color-on-surface-variant: #504442;
+    --color-on-surface-variant: #3D3332;
     --color-outline-variant: #d3c3c0;
     --color-secondary-container: #fed0c1;
     --color-on-secondary-container: #79574c;
@@ -1190,7 +1191,7 @@
     color: var(--color-on-surface-variant);
   }
   .text-on-surface-variant\/60 {
-    color: color-mix(in srgb, #504442 60%, transparent);
+    color: color-mix(in srgb, #3D3332 60%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--color-on-surface-variant) 60%, transparent);
     }
@@ -1431,7 +1432,7 @@
   }
   .placeholder\:text-on-surface-variant\/60 {
     &::placeholder {
-      color: color-mix(in srgb, #504442 60%, transparent);
+      color: color-mix(in srgb, #3D3332 60%, transparent);
       @supports (color: color-mix(in lab, red, red)) {
         color: color-mix(in oklab, var(--color-on-surface-variant) 60%, transparent);
       }
@@ -1719,6 +1720,149 @@ body {
     font-family: 'Newsreader', serif;
     font-style: italic;
   }
+  .btn-primary {
+    border-radius: calc(infinity * 1px);
+    background-color: var(--color-primary);
+    padding-inline: calc(var(--spacing) * 6);
+    padding-block: calc(var(--spacing) * 2.5);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-surface-container-lowest);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    &:hover {
+      @media (hover: hover) {
+        opacity: 90%;
+      }
+    }
+    &:focus-visible {
+      outline-style: var(--tw-outline-style);
+      outline-width: 2px;
+    }
+    &:focus-visible {
+      outline-offset: 2px;
+    }
+    &:focus-visible {
+      outline-color: var(--color-primary);
+    }
+    &:active {
+      --tw-scale-x: 95%;
+      --tw-scale-y: 95%;
+      --tw-scale-z: 95%;
+      scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+  .btn-filter {
+    border-radius: var(--radius-md);
+    border-style: var(--tw-border-style);
+    border-width: 1px;
+    border-color: color-mix(in srgb, #d3c3c0 30%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-outline-variant) 30%, transparent);
+    }
+    background-color: var(--color-surface-container-lowest);
+    padding-inline: calc(var(--spacing) * 6);
+    padding-block: calc(var(--spacing) * 2.5);
+    text-align: left;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--color-primary);
+      }
+    }
+    &:focus-visible {
+      outline-style: var(--tw-outline-style);
+      outline-width: 2px;
+    }
+    &:focus-visible {
+      outline-offset: 2px;
+    }
+    &:focus-visible {
+      outline-color: var(--color-primary);
+    }
+  }
+  .btn-ghost {
+    border-radius: calc(infinity * 1px);
+    padding-inline: calc(var(--spacing) * 6);
+    padding-block: calc(var(--spacing) * 2.5);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    --tw-font-weight: var(--font-weight-medium);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-on-surface-variant);
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-primary);
+      }
+    }
+    &:focus-visible {
+      outline-style: var(--tw-outline-style);
+      outline-width: 2px;
+    }
+    &:focus-visible {
+      outline-offset: 2px;
+    }
+    &:focus-visible {
+      outline-color: var(--color-primary);
+    }
+  }
+  .map-popup {
+    min-width: 200px;
+    padding: calc(var(--spacing) * 2);
+    font-family: var(--font-body);
+  }
+  .map-popup__name {
+    margin-bottom: calc(var(--spacing) * 1.5);
+    display: block;
+    font-family: var(--font-headline);
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading, var(--text-sm--line-height));
+    color: var(--color-primary);
+  }
+  .map-popup__location {
+    margin-bottom: calc(var(--spacing) * 1);
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    color: var(--color-on-surface-variant);
+  }
+  .map-popup__address {
+    margin-bottom: calc(var(--spacing) * 1.5);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    color: var(--color-gray-600);
+  }
+  .map-popup__website {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    color: var(--color-primary);
+    &:hover {
+      @media (hover: hover) {
+        text-decoration-line: underline;
+      }
+    }
+  }
+  .map-popup__distance {
+    margin-top: calc(var(--spacing) * 1.5);
+    font-size: var(--text-xs);
+    line-height: var(--tw-leading, var(--text-xs--line-height));
+    --tw-font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+  }
 }
 @keyframes shimmer {
   100% {
@@ -1802,9 +1946,12 @@ body {
   }
   #map {
     z-index: 10;
-    height: 400px;
+    height: 300px;
     width: 100%;
     border-radius: var(--radius-2xl);
+    @media (width >= 40rem) {
+      height: 400px;
+    }
   }
 }
 @property --tw-translate-x {
