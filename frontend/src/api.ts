@@ -1,6 +1,6 @@
 import type { Cafe, Roaster } from "./types.ts";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:5000/api/v1";
 
 interface PaginatedResponse<T> {
   data: T[];
