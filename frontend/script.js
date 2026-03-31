@@ -28,7 +28,7 @@
       "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
       {
         attribution: "&copy; OpenStreetMap &copy; CARTO",
-        r: window.devicePixelRatio > 1 ? "@2x" : ""
+        r: globalThis.devicePixelRatio > 1 ? "@2x" : ""
       }
     ).addTo(map);
   }
@@ -115,13 +115,21 @@
   // frontend/src/dropdowns.ts
   function setDropdownOpen(btn, chevron, open) {
     if (open) {
-      btn.classList.remove("rounded-md", "border-outline-variant/30", "hover:border-primary");
+      btn.classList.remove(
+        "rounded-md",
+        "border-outline-variant/30",
+        "hover:border-primary"
+      );
       btn.classList.add("rounded-t-md", "border-primary");
       chevron?.classList.add("rotate-180");
       chevron?.classList.remove("group-hover:translate-y-0.5");
     } else {
       btn.classList.remove("rounded-t-md", "border-primary");
-      btn.classList.add("rounded-md", "border-outline-variant/30", "hover:border-primary");
+      btn.classList.add(
+        "rounded-md",
+        "border-outline-variant/30",
+        "hover:border-primary"
+      );
       chevron?.classList.remove("rotate-180");
       chevron?.classList.add("group-hover:translate-y-0.5");
     }
@@ -174,7 +182,9 @@
         }
       });
       panel.addEventListener("click", (e) => {
-        const item = e.target.closest("[data-value]");
+        const item = e.target.closest(
+          "[data-value]"
+        );
         if (!item) return;
         if (label) label.textContent = item.textContent?.trim() ?? "";
         if (select) {
@@ -192,7 +202,11 @@
     const list = document.getElementById("roaster-dropdown-list");
     if (!select) return;
     while (select.options.length > 1) select.remove(1);
-    if (list) while (list.children.length > 1) list.removeChild(list.lastChild);
+    if (list) {
+      while (list.children.length > 1) {
+        list.removeChild(list.lastChild);
+      }
+    }
     roasters.forEach((roaster) => {
       const opt = document.createElement("option");
       opt.value = roaster.id;
@@ -241,7 +255,9 @@
           <div>
             <p class="font-bold text-primary text-sm">${bean.name}</p>
             <p class="text-xs text-on-surface-variant uppercase">
-              ${[bean.roaster_name, bean.processing, altitude].filter(Boolean).join(" \xB7 ") || "Detalhes n\xE3o dispon\xEDveis"}
+              ${[bean.roaster_name, bean.processing, altitude].filter(Boolean).join(
+      " \xB7 "
+    ) || "Detalhes n\xE3o dispon\xEDveis"}
             </p>
           </div>
         </div>
@@ -328,7 +344,9 @@
         Gr\xE3os Dispon\xEDveis
       </h4>
       <div class="space-y-4">
-        ${beans.map((bean, idx) => renderGrainItem(bean, venue.id, idx)).join("")}
+        ${beans.map(
+      (bean, idx) => renderGrainItem(bean, venue.id, idx)
+    ).join("")}
       </div>
     ` : `<p class="text-sm text-on-surface-variant italic text-center py-6">Nenhum gr\xE3o inventariado no momento.</p>`;
     return `
@@ -516,7 +534,10 @@
       } else {
         mapContainer?.classList.remove("open");
         if (mapBtnText) mapBtnText.textContent = "Ver Mapa";
-        mapToggleBtn.classList.remove("bg-primary", "text-surface-container-lowest");
+        mapToggleBtn.classList.remove(
+          "bg-primary",
+          "text-surface-container-lowest"
+        );
         mapToggleBtn.classList.add("bg-surface-container", "text-primary");
         mapBadge?.classList.add("hidden");
       }
