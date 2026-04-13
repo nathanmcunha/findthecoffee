@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   // frontend/src/api.ts
-  var API_BASE_URL = "http://localhost:5000/api";
+  var API_BASE_URL = "http://localhost:5000/api/v1";
   async function fetchRoasters() {
     const r = await fetch(`${API_BASE_URL}/roasters`);
     const json = await r.json();
