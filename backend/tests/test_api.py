@@ -417,3 +417,138 @@ def test_list_beans_repo_error_returns_500(client, mocker):
     res = client.get("/api/v1/beans")
 
     assert res.status_code == 500
+
+
+# ============== CURATION ENDPOINT TESTS ==============
+
+
+def test_update_cafe_curation_success(client, mocker):
+    """Test PATCH /admin/v1/cafes/<id>/curation updates curation fields."""
+    mock_service = mocker.MagicMock()
+    mock_service.update_curation.return_value = {
+        "id": uuid.UUID(TEST_UUID),
+        "is_curator_pick": True,
+        "source_attribution": "João's pick",
+    }
+    mocker.patch("app.core.dependencies.container._cafe_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/cafes/{TEST_UUID}/curation",
+        json={"is_curator_pick": True, "source_attribution": "João's pick"},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["status"] == "updated"
+    assert data["is_curator_pick"] is True
+    assert data["source_attribution"] == "João's pick"
+
+
+def test_update_cafe_curation_partial(client, mocker):
+    """Test PATCH with only is_curator_pick — source_attribution unchanged."""
+    mock_service = mocker.MagicMock()
+    mock_service.update_curation.return_value = {
+        "id": uuid.UUID(TEST_UUID),
+        "is_curator_pick": True,
+        "source_attribution": None,
+    }
+    mocker.patch("app.core.dependencies.container._cafe_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/cafes/{TEST_UUID}/curation",
+        json={"is_curator_pick": True},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 200
+    mock_service.update_curation.assert_called_once_with(
+        cafe_id=uuid.UUID(TEST_UUID),
+        is_curator_pick=True,
+        source_attribution=None,
+    )
+
+
+def test_update_cafe_curation_not_found(client, mocker):
+    """Test PATCH /admin/v1/cafes/<id>/curation returns 404 when cafe not found."""
+    mock_service = mocker.MagicMock()
+    mock_service.update_curation.side_effect = NotFoundError("Cafe", TEST_UUID)
+    mocker.patch("app.core.dependencies.container._cafe_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/cafes/{TEST_UUID}/curation",
+        json={"is_curator_pick": True},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 404
+
+
+def test_update_cafe_curation_requires_auth(client):
+    """Test that PATCH /admin/v1/cafes/<id>/curation returns 401 without API key."""
+    res = client.patch(
+        f"/admin/v1/cafes/{TEST_UUID}/curation",
+        json={"is_curator_pick": True},
+    )
+    assert res.status_code == 401
+
+
+def test_update_roaster_curation_success(client, mocker):
+    """Test PATCH /admin/v1/roasters/<id>/curation updates curation fields."""
+    mock_service = mocker.MagicMock()
+    mock_service.update_curation.return_value = {
+        "id": uuid.UUID(TEST_UUID),
+        "is_curator_pick": True,
+        "source_attribution": "From Paulo",
+    }
+    mocker.patch("app.core.dependencies.container._roaster_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/roasters/{TEST_UUID}/curation",
+        json={"is_curator_pick": True, "source_attribution": "From Paulo"},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["status"] == "updated"
+    assert data["is_curator_pick"] is True
+
+
+def test_update_roaster_curation_not_found(client, mocker):
+    """Test PATCH /admin/v1/roasters/<id>/curation returns 404 when roaster not found."""
+    mock_service = mocker.MagicMock()
+    mock_service.update_curation.side_effect = NotFoundError("Roaster", TEST_UUID)
+    mocker.patch("app.core.dependencies.container._roaster_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/roasters/{TEST_UUID}/curation",
+        json={"is_curator_pick": True},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 404
+
+
+def test_update_roaster_curation_requires_auth(client):
+    """Test that PATCH /admin/v1/roasters/<id>/curation returns 401 without API key."""
+    res = client.patch(
+        f"/admin/v1/roasters/{TEST_UUID}/curation",
+        json={"is_curator_pick": True},
+    )
+    assert res.status_code == 401
+
+
+def test_update_curation_validation_error(client, mocker):
+    """Test PATCH returns 400 when source_attribution exceeds max length."""
+    mock_service = mocker.MagicMock()
+    mocker.patch("app.core.dependencies.container._cafe_service", mock_service)
+
+    res = client.patch(
+        f"/admin/v1/cafes/{TEST_UUID}/curation",
+        json={"source_attribution": "x" * 501},
+        headers=AUTH,
+    )
+
+    assert res.status_code == 400
+    assert "Validation Error" in res.get_json()["error"]

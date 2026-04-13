@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-from app.api.v1.routes import cafes_bp, roasters_bp, beans_bp
+from app.api.v1.routes import cafes_bp, roasters_bp, beans_bp, admin_bp
 
 # Load variables from .env file
 _ = load_dotenv()
@@ -51,5 +51,6 @@ def create_app() -> Flask:
     app.register_blueprint(cafes_bp, url_prefix="/api/v1/cafes")
     app.register_blueprint(roasters_bp, url_prefix="/api/v1/roasters")
     app.register_blueprint(beans_bp, url_prefix="/api/v1/beans")
+    app.register_blueprint(admin_bp)
 
     return app

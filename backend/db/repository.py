@@ -44,6 +44,41 @@ class RoasterRepository:
             raise ValueError("Failed to insert roaster or retrieve ID")
         return row[0]
 
+    def update_curation(
+        self,
+        roaster_id: uuid.UUID,
+        is_curator_pick: bool | None = None,
+        source_attribution: str | None = None,
+    ) -> dict[str, Any]:
+        """Update curation fields on a roaster. Partial update supported."""
+        if is_curator_pick is None and source_attribution is None:
+            # Nothing to update — return current state
+            row = self.get_by_id(roaster_id)
+            if row is None:
+                raise ValueError("Roaster not found")
+            return row
+
+        set_clauses = []
+        params: dict[str, Any] = {"id": roaster_id}
+        if is_curator_pick is not None:
+            set_clauses.append("is_curator_pick = :is_curator_pick")
+            params["is_curator_pick"] = is_curator_pick
+        if source_attribution is not None:
+            set_clauses.append("source_attribution = :source_attribution")
+            params["source_attribution"] = source_attribution
+
+        query = f"""
+            UPDATE roasters
+            SET {", ".join(set_clauses)}
+            WHERE id = :id AND deleted_at IS NULL
+            RETURNING id, is_curator_pick, source_attribution
+        """
+        result = self.db.execute(query, params)
+        row = result.fetchone()
+        if row is None:
+            raise ValueError("Roaster not found")
+        return dict(row)
+
 
 class CafeRepository:
     """Repository for cafe operations, including inventory."""
@@ -104,6 +139,40 @@ class CafeRepository:
         """Adds a bean to a cafe's inventory."""
         query = "INSERT INTO cafe_inventory (cafe_id, bean_id) VALUES (:cafe_id, :bean_id) ON CONFLICT DO NOTHING"
         _ = self.db.execute(query, {"cafe_id": cafe_id, "bean_id": bean_id})
+
+    def update_curation(
+        self,
+        cafe_id: uuid.UUID,
+        is_curator_pick: bool | None = None,
+        source_attribution: str | None = None,
+    ) -> dict[str, Any]:
+        """Update curation fields on a cafe. Partial update supported."""
+        if is_curator_pick is None and source_attribution is None:
+            row = self.get_by_id(cafe_id)
+            if row is None:
+                raise ValueError("Cafe not found")
+            return row
+
+        set_clauses = []
+        params: dict[str, Any] = {"id": cafe_id}
+        if is_curator_pick is not None:
+            set_clauses.append("is_curator_pick = :is_curator_pick")
+            params["is_curator_pick"] = is_curator_pick
+        if source_attribution is not None:
+            set_clauses.append("source_attribution = :source_attribution")
+            params["source_attribution"] = source_attribution
+
+        query = f"""
+            UPDATE cafes
+            SET {", ".join(set_clauses)}
+            WHERE id = :id AND deleted_at IS NULL
+            RETURNING id, is_curator_pick, source_attribution
+        """
+        result = self.db.execute(query, params)
+        row = result.fetchone()
+        if row is None:
+            raise ValueError("Cafe not found")
+        return dict(row)
 
     def search(
         self,

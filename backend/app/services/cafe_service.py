@@ -99,6 +99,23 @@ class CafeService:
         self.get_by_id(cafe_id)
         return self.cafe_repo.get_inventory(cafe_id)
 
+    def update_curation(
+        self,
+        cafe_id: uuid.UUID,
+        is_curator_pick: bool | None = None,
+        source_attribution: str | None = None,
+    ) -> dict[str, Any]:
+        """Update curation fields on a cafe. Partial update supported."""
+        # Verify cafe exists
+        self.get_by_id(cafe_id)
+        logger.info(
+            "Updating curation on cafe %s: pick=%s, attribution=%s",
+            cafe_id,
+            is_curator_pick,
+            source_attribution,
+        )
+        return self.cafe_repo.update_curation(cafe_id, is_curator_pick, source_attribution)
+
     def add_to_inventory(
         self,
         cafe_id: uuid.UUID,
