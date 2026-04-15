@@ -60,6 +60,7 @@ declare namespace L {
     invalidateSize(): void;
     fitBounds(bounds: LatLngBoundsExpression): void;
     removeLayer(layer: Layer): void;
+    on(type: string, handler: (e?: unknown) => void): this;
   }
 }
 

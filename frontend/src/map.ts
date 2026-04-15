@@ -1,7 +1,17 @@
 import type { Cafe } from "./types.ts";
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export let map: L.Map;
 export let markers: L.Layer[] = [];
+let userHasMovedMap = false;
 
 export function initMap(): void {
   map = L.map("map").setView([-23.5505, -46.6333], 5);
@@ -12,6 +22,9 @@ export function initMap(): void {
       r: globalThis.devicePixelRatio > 1 ? "@2x" : "",
     },
   ).addTo(map);
+  map.on("moveend", () => {
+    userHasMovedMap = true;
+  });
 }
 
 export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
@@ -49,9 +62,11 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
 
     const marker = L.marker([lat, lng], { icon }).addTo(map).bindPopup(`
         <div style="font-family:'Manrope',sans-serif;">
-          <strong style="color:#271310;display:block;margin-bottom:4px;">${venue.name}</strong>
+          <strong style="color:#271310;display:block;margin-bottom:4px;">${
+      escapeHtml(venue.name)
+    }</strong>
           <span style="font-size:12px;color:#504442;">${
-      venue.location || venue.address || ""
+      escapeHtml(venue.location || venue.address || "")
     }</span>
         </div>
       `);
@@ -65,7 +80,7 @@ export function updateMarkers(venues: Cafe[], mapIsVisible: boolean): void {
     } no mapa`;
   }
 
-  if (markers.length > 0 && mapIsVisible) {
+  if (markers.length > 0 && mapIsVisible && !userHasMovedMap) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
@@ -89,11 +104,21 @@ export function getUserLocation(): void {
   navigator.geolocation.getCurrentPosition(
     ({ coords: { latitude, longitude } }) => {
       map.setView([latitude, longitude], 13);
+      userHasMovedMap = true;
 
       const mapContainer = document.getElementById("map-container");
+      const toggleBtn = document.getElementById("toggle-map-btn") as
+        | HTMLButtonElement
+        | null;
+      const mapBtnText = document.getElementById("map-btn-text");
+      const mapBadge = document.getElementById("map-badge");
       if (mapContainer && !mapContainer.classList.contains("open")) {
-        (document.getElementById("toggle-map-btn") as HTMLButtonElement | null)
-          ?.click();
+        mapContainer.classList.add("open");
+        if (mapBtnText) mapBtnText.textContent = "Ocultar Mapa";
+        toggleBtn?.classList.add("bg-primary", "text-surface-container-lowest");
+        toggleBtn?.classList.remove("bg-surface-container", "text-primary");
+        mapBadge?.classList.remove("hidden");
+        setTimeout(() => map.invalidateSize(), 300);
       }
 
       L.circleMarker([latitude, longitude], {
