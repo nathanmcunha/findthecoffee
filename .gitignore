@@ -52,6 +52,7 @@ backend/scrape_five_roasters.py
 
 # Frontend build artifacts
 frontend/script.js
+frontend/script.js.map
 frontend/style.css
 frontend/esbuild
 frontend/tailwindcss
