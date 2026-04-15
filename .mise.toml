@@ -1,12 +1,19 @@
 [tools]
 python = "3.12"
 deno = "latest"
+podman = "latest"
+pre-commit = "latest"
+
+
+[settings]
+task.output = "interleave"
+task.timings = true
+jobs = 4
+env_file = ".env"
 
 [env]
 _.python.venv = ".venv"
-DATABASE_URL = "postgresql+psycopg://user:password@localhost:5432/coffeedb"
 PYTHONPATH = "backend"
-DOCKER_HOST = "unix:///run/user/1000/podman/podman.sock"
 
 [tasks.venv]
 description = "Recreate .venv and reinstall deps (run after mise upgrades Python)"
@@ -18,12 +25,15 @@ python -m venv .venv
 
 [tasks."up:infra"]
 description = "Start only the infrastructure (database)"
-run = "docker compose -f docker-compose.infra.yml up -d"
+run = "podman compose -f docker-compose.infra.yml up db -d"
 
 [tasks."up:backend"]
 description = "Start the backend API with hot-reload"
 depends = ["up:infra"]
-run = "python backend/main.py"
+run = """
+alembic -c backend/db/alembic.ini upgrade head
+python backend/main.py
+"""
 
 [tasks."tailwind:download"]
 description = "Download standalone Tailwind CLI library"
@@ -56,12 +66,18 @@ run = "deno check frontend/src/*.ts"
 [tasks."js:build"]
 description = "Bundle TypeScript → script.js via esbuild"
 depends = ["esbuild:download"]
-run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js"
+run = """
+API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
+./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --define:__API_BASE_URL__="'${API_BASE_URL}'"
+"""
 
 [tasks."js:watch"]
 description = "Watch and rebuild TypeScript on changes"
 depends = ["esbuild:download"]
-run = "./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --watch"
+run = """
+API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
+./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --watch --define:__API_BASE_URL__="'${API_BASE_URL}'"
+"""
 
 [tasks."js:format"]
 description = "Format TypeScript sources with deno fmt"
@@ -76,8 +92,9 @@ run = "echo 'All checks passed'"
 description = "Production build with minification"
 depends = ["tailwind:download", "esbuild:download", "js:check"]
 run = """
+API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
+./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --minify --sourcemap --define:__API_BASE_URL__="'${API_BASE_URL}'"
 ./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --minify
-./frontend/esbuild frontend/src/main.ts --bundle --minify --sourcemap --outfile=frontend/script.js
 """
 
 [tasks.clean]
@@ -88,23 +105,8 @@ rm -rf frontend/dist
 """
 
 [tasks."hooks:install"]
-description = "Install git hooks for pre-commit checks"
-run = """
-git config core.hooksPath .git-hooks
-echo "Git hooks installed successfully!"
-echo "Pre-commit checks will run on every commit."
-"""
-
-[tasks."hooks:uninstall"]
-description = "Remove git hooks"
-run = """
-git config --unset core.hooksPath
-echo "Git hooks removed."
-"""
-
-[tasks."hooks:run"]
-description = "Manually run pre-commit checks"
-run = ".git-hooks/pre-commit"
+description = "Install pre-commit hooks"
+run = "pre-commit install"
 
 [tasks."tailwind:watch"]
 description = "Watch and compile Tailwind CSS"
@@ -118,6 +120,11 @@ run = """
 ./frontend/tailwindcss -i frontend/input.css -o frontend/style.css
 python -m http.server --directory frontend 8080
 """
+
+[tasks.seed]
+description = "Run database seed (clears and repopulates tables)"
+depends = ["up:infra"]
+run = "python backend/seed_data.py"
 
 [tasks.test]
 description = "Run pytest suite"
@@ -139,7 +146,11 @@ run = "python -m pytest backend/tests --cov=backend --cov-report=term-missing"
 description = "Run pytest with HTML coverage report"
 run = "python -m pytest backend/tests --cov=backend --cov-report=html --cov-report=term-missing"
 
+[tasks."docker:dev"]
+description = "Start infra + backend via Docker Compose with hot-reload volumes"
+run = "podman compose -f docker-compose.yml -f docker-compose.override.yml up db migrate backend"
+
 [tasks.dev]
-description = "Run backend and frontend in parallel"
-depends = ["up:infra", "tailwind:download", "esbuild:download"]
-run = "mise run up:backend & mise run up:frontend & mise run tailwind:watch & mise run js:watch & wait"
+description = "Docker Compose (infra+backend) + local frontend with live watchers"
+depends = ["tailwind:download", "esbuild:download"]
+run = "mise run docker:dev & mise run up:frontend & mise run tailwind:watch & mise run js:watch & wait"

@@ -1,6 +1,8 @@
 # Stage 1: Type check + Build
 FROM alpine:latest AS builder
 
+ARG API_BASE_URL="http://localhost:5000/api/v1"
+
 ENV TAILWIND_VERSION=v4.2.1
 ENV ESBUILD_VERSION=0.25.2
 ENV DENO_VERSION=2.3.1
@@ -24,9 +26,9 @@ WORKDIR /app
 COPY . .
 
 # Type check → Bundle JS → Compile CSS
-RUN deno check src/main.ts
-RUN esbuild src/main.ts --bundle --outfile=script.js --minify
-RUN tailwindcss -i input.css -o style.css --minify
+RUN /usr/local/bin/deno check src/main.ts
+RUN /usr/local/bin/esbuild src/main.ts --bundle --outfile=script.js --minify --define:__API_BASE_URL__="'${API_BASE_URL}'"
+RUN /usr/local/bin/tailwindcss -i input.css -o style.css --minify
 
 # Stage 2: Serve the application
 FROM nginx:alpine
