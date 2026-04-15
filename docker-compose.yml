@@ -76,10 +76,15 @@ services:
       - backend
 
   frontend:
-    image: nginx:alpine
+    build:
+      context: ./frontend
+      args:
+        API_BASE_URL: "http://backend:5000/api/v1"
     container_name: coffee_frontend
     ports:
       - "8080:80"
+    environment:
+      API_BASE_URL: "http://backend:5000/api/v1"
     depends_on:
       - backend
 
