@@ -4,7 +4,8 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
-    "noEmit": true,
+    "outDir": "dist",
+    "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -25,13 +26,10 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
-    "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "types": ["leaflet"],
-    "allowImportingTsExtensions": true
+    "types": ["leaflet"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

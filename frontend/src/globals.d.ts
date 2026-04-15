@@ -3,5 +3,3 @@
 declare const lucide: {
   createIcons: () => void;
 };
-
-declare const __API_BASE_URL__: string;

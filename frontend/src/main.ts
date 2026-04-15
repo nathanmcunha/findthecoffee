@@ -1,16 +1,16 @@
 /// <reference path="./globals.d.ts" />
 /// <reference path="./leaflet.d.ts" />
 
-import { fetchCafes, fetchRoasters } from "./api.ts";
+import { fetchCafes, fetchRoasters } from "./api.js";
 import {
   getUserLocation,
   initMap,
   map,
   markers,
   updateMarkers,
-} from "./map.ts";
-import { initCustomDropdowns, populateRoasterDropdown } from "./dropdowns.ts";
-import { renderResults, showErrorState, showLoadingState } from "./ui.ts";
+} from "./map.js";
+import { initCustomDropdowns, populateRoasterDropdown } from "./dropdowns.js";
+import { renderResults, showErrorState, showLoadingState } from "./ui.js";
 
 lucide.createIcons();
 

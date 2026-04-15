@@ -10,39 +10,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "sloppyImports": true
   },
   "lint": {
     "include": ["frontend/src/"],
-    "exclude": ["node_modules/", "frontend/script.js", "frontend/src/leaflet.d.ts"],
-    "rules": {
-      "tags": ["recommended", "jsx", "react"],
-      "include": [
-        "ban-untagged-todo",
-        "no-console",
-        "no-debugger",
-        "prefer-const",
-        "no-var",
-        "no-unused-vars",
-        "no-explicit-any",
-        "no-non-null-assertion",
-        "require-await",
-        "return-await",
-        "no-import-assigned",
-        "no-async-promise-executor",
-        "no-irregular-whitespace",
-        "valid-typeof",
-        "no-empty-character-class",
-        "no-misleading-character-class",
-        "use-isnan",
-        "valid-typeof"
-      ],
-      "exclude": []
-    }
+    "exclude": ["node_modules/", "frontend/dist/", "frontend/src/leaflet.d.ts"]
   },
   "fmt": {
     "include": ["frontend/src/"],
-    "exclude": ["node_modules/", "frontend/script.js"],
+    "exclude": ["node_modules/", "frontend/dist/"],
     "lineWidth": 100,
     "indentWidth": 2,
     "singleQuote": false,

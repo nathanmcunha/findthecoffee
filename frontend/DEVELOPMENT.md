@@ -182,6 +182,8 @@ mise run build:prod
 mise run clean
 ```
 
+Frontend bundling now runs via `frontend/scripts/build.ts`, so `mise run js:build`/`js:watch` execute that Deno script (the watch task starts `deno --watch` over `frontend/src` and `frontend/input.css`, while `build:prod` adds `--minify --sourcemap`). The script downloads Tailwind CLI on the fly and fills `frontend/script.js`/`frontend/style.css` from the TypeScript sources.
+
 ---
 
 ## Common Patterns

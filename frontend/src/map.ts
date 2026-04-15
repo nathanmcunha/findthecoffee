@@ -1,4 +1,4 @@
-import type { Cafe } from "./types.ts";
+import type { Cafe } from "./types.js";
 
 function escapeHtml(str: string): string {
   return str

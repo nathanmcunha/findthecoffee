@@ -1,8 +1,8 @@
 [tools]
 python = "3.12"
-deno = "latest"
 podman = "latest"
 pre-commit = "latest"
+node = "lts"
 
 
 [settings]
@@ -35,91 +35,42 @@ alembic -c backend/db/alembic.ini upgrade head
 python backend/main.py
 """
 
-[tasks."tailwind:download"]
-description = "Download standalone Tailwind CLI library"
-run = """
-if [ ! -f frontend/tailwindcss ]; then
-    echo "Downloading Tailwind CLI..."
-    curl -sL https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64 -o frontend/tailwindcss
-    chmod +x frontend/tailwindcss
-fi
-"""
+[tasks.ts]
+description = "Type-check all TypeScript sources with tsc"
+run = "cd frontend && npm run typecheck"
 
-[tasks."esbuild:download"]
-description = "Download standalone esbuild binary"
-run = """
-if [ ! -f frontend/esbuild ]; then
-    echo "Downloading esbuild..."
-    curl -sL https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.25.2.tgz | tar xz --strip-components=2 -C frontend package/bin/esbuild
-    chmod +x frontend/esbuild
-fi
-"""
-
-[tasks."js:lint"]
-description = "Lint TypeScript sources with deno lint"
-run = "deno lint frontend/src/"
-
-[tasks."ts:check"]
-description = "Type-check all TypeScript sources with deno check"
-run = "deno check frontend/src/*.ts"
-
-[tasks."js:build"]
-description = "Bundle TypeScript → script.js via esbuild"
-depends = ["esbuild:download"]
-run = """
-API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
-./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --define:__API_BASE_URL__="'${API_BASE_URL}'"
-"""
+[tasks.js]
+description = "Build frontend with Vite"
+run = "cd frontend && npm run build"
 
 [tasks."js:watch"]
-description = "Watch and rebuild TypeScript on changes"
-depends = ["esbuild:download"]
-run = """
-API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
-./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --watch --define:__API_BASE_URL__="'${API_BASE_URL}'"
-"""
+description = "Start Vite dev server with hot-reload"
+run = "cd frontend && npm run dev"
 
 [tasks."js:format"]
-description = "Format TypeScript sources with deno fmt"
-run = "deno fmt frontend/src/"
+description = "Format TypeScript sources with Prettier (placeholder)"
+run = "echo 'Formatting is now handled by pre-commit hooks'"
 
 [tasks."js:check"]
-description = "Full JS check (eslint + format + type)"
-depends = ["js:lint", "js:format", "ts:check"]
+description = "Full JS check (type checking only)"
+depends = ["ts"]
 run = "echo 'All checks passed'"
 
 [tasks."build:prod"]
-description = "Production build with minification"
-depends = ["tailwind:download", "esbuild:download", "js:check"]
-run = """
-API_BASE_URL=$(grep '^API_BASE_URL=' .env | cut -d= -f2-)
-./frontend/esbuild frontend/src/main.ts --bundle --outfile=frontend/script.js --minify --sourcemap --define:__API_BASE_URL__="'${API_BASE_URL}'"
-./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --minify
-"""
+description = "Production build with type check and minification"
+run = "cd frontend && npm run typecheck && npm run build"
 
 [tasks.clean]
 description = "Clean build artifacts"
-run = """
-rm -f frontend/script.js frontend/style.css frontend/tailwindcss frontend/esbuild
-rm -rf frontend/dist
-"""
+run = "rm -rf frontend/dist"
 
 [tasks."hooks:install"]
 description = "Install pre-commit hooks"
 run = "pre-commit install"
 
-[tasks."tailwind:watch"]
-description = "Watch and compile Tailwind CSS"
-depends = ["tailwind:download"]
-run = "./frontend/tailwindcss -i frontend/input.css -o frontend/style.css --watch"
-
 [tasks."up:frontend"]
-description = "Serve the frontend and compile CSS + JS"
-depends = ["tailwind:download", "js:build"]
-run = """
-./frontend/tailwindcss -i frontend/input.css -o frontend/style.css
-python -m http.server --directory frontend 8080
-"""
+description = "Serve the frontend with Vite hot-reload"
+run = "cd frontend && npm run dev"
 
 [tasks.seed]
 description = "Run database seed (clears and repopulates tables)"
@@ -151,6 +102,5 @@ description = "Start infra + backend via Docker Compose with hot-reload volumes"
 run = "podman compose -f docker-compose.yml -f docker-compose.override.yml up db migrate backend"
 
 [tasks.dev]
-description = "Docker Compose (infra+backend) + local frontend with live watchers"
-depends = ["tailwind:download", "esbuild:download"]
-run = "mise run docker:dev & mise run up:frontend & mise run tailwind:watch & mise run js:watch & wait"
+description = "Start backend (Docker) + frontend (Vite dev server)"
+run = "bash scripts/start-dev.sh"

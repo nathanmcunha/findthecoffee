@@ -1,4 +1,4 @@
-import type { Roaster } from "./types.ts";
+import type { Roaster } from "./types.js";
 
 function setDropdownOpen(
   btn: HTMLElement,

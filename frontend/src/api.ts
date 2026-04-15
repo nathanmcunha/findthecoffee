@@ -1,6 +1,8 @@
-import type { Cafe, Roaster } from "./types.ts";
+import type { Cafe, Roaster } from "./types.js";
 
-const API_BASE_URL: string = __API_BASE_URL__;
+const API_BASE_URL: string =
+  (document.querySelector('meta[name="api-base-url"]') as HTMLMetaElement | null)
+    ?.content ?? "/api/v1";
 
 interface PaginatedResponse<T> {
   data: T[];

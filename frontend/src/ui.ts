@@ -1,4 +1,4 @@
-import type { Bean, Cafe } from "./types.ts";
+import type { Bean, Cafe } from "./types.js";
 
 function createSensoryBar(label: string, value: number | null): string {
   if (value === null || value === undefined) return "";
