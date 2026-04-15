@@ -105,9 +105,10 @@
           <!-- Near Me -->
           <button
             id="near-me-btn"
+            aria-label="Encontrar cafeterias perto de mim"
             class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-surface-container-lowest font-medium text-sm transition-transform active:scale-95 hover:opacity-90"
           >
-            <i data-lucide="navigation" class="w-4 h-4"></i> Perto de Mim
+            <i data-lucide="navigation" class="w-4 h-4" aria-hidden="true"></i> Perto de Mim
           </button>
 
           <!-- Roaster Filter -->
@@ -234,7 +235,7 @@
         <!-- Active area badge — shown when map is open -->
         <div
           id="map-badge"
-          class="hidden absolute top-6 left-6 bg-surface-container-lowest/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/20 shadow-sm flex items-center gap-2 z-[400]"
+          class="hidden absolute top-6 left-6 bg-surface-container-lowest/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/20 shadow-sm flex items-center gap-2 z-[1000]"
         >
           <div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
           <span
@@ -391,7 +392,7 @@
         <div
           class="text-on-surface-variant text-sm tracking-wide opacity-60 text-center md:text-right"
         >
-          © 2024 Ache o Café.
+          © <span id="year"></span> Ache o Café.
         </div>
       </div>
     </footer>
