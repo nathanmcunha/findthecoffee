@@ -36,3 +36,20 @@ class RoasterService:
         """Create a new roaster."""
         logger.info("Creating roaster: %s", name)
         return self.roaster_repo.create(name, website, location)
+
+    def update_curation(
+        self,
+        roaster_id: uuid.UUID,
+        is_curator_pick: bool | None = None,
+        source_attribution: str | None = None,
+    ) -> dict[str, Any]:
+        """Update curation fields on a roaster. Partial update supported."""
+        # Verify roaster exists
+        self.get_by_id(roaster_id)
+        logger.info(
+            "Updating curation on roaster %s: pick=%s, attribution=%s",
+            roaster_id,
+            is_curator_pick,
+            source_attribution,
+        )
+        return self.roaster_repo.update_curation(roaster_id, is_curator_pick, source_attribution)

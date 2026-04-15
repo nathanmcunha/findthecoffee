@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-from app.api.v1.routes import cafes_bp, roasters_bp, beans_bp
+from app.api.v1.routes import cafes_bp, roasters_bp, beans_bp, admin_bp
 
 # Load variables from .env file
 _ = load_dotenv()
@@ -29,10 +29,10 @@ def create_app() -> Flask:
         logger.warning(
             "CORS_ORIGINS not set — allowing all origins. Set CORS_ORIGINS in production."
         )
-    CORS(app, resources={r"/api/*": {"origins": _cors_origins}})
+    _ = CORS(app, resources={r"/api/*": {"origins": _cors_origins}})
 
     # Rate limiting — in-memory storage, configurable via RATELIMIT_STORAGE_URI
-    Limiter(
+    limiter = Limiter(
         get_remote_address,
         app=app,
         default_limits=["200 per day", "60 per hour"],
@@ -43,11 +43,14 @@ def create_app() -> Flask:
     @app.route("/ping", methods=["GET"])
     def ping():  # type: ignore[reportUnusedFunction]
         """Basic health check route."""
-        return jsonify({"status": "online", "message": "Coffee Finder API is running"}), 200
+        return jsonify(
+            {"status": "online", "message": "Coffee Finder API is running"}
+        ), 200
 
     # Register API v1 blueprints
     app.register_blueprint(cafes_bp, url_prefix="/api/v1/cafes")
     app.register_blueprint(roasters_bp, url_prefix="/api/v1/roasters")
     app.register_blueprint(beans_bp, url_prefix="/api/v1/beans")
+    app.register_blueprint(admin_bp)
 
     return app

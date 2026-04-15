@@ -18,9 +18,13 @@ document.fonts.ready.then(() => {
   document.body.classList.add("fonts-loaded");
 });
 
+const yearEl = document.getElementById("year");
+if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 let mapIsVisible = false;
 let isFirstLoad = true;
+let fetchController: AbortController | null = null;
 
 function getFilters() {
   return {
@@ -35,15 +39,21 @@ function getFilters() {
 }
 
 async function loadCafes(): Promise<void> {
+  fetchController?.abort();
+  fetchController = new AbortController();
+  const timeoutId = setTimeout(() => fetchController?.abort(), 10_000);
+
   showLoadingState(isFirstLoad);
   if (isFirstLoad) isFirstLoad = false;
 
   try {
-    const data = await fetchCafes(getFilters());
+    const data = await fetchCafes(getFilters(), fetchController.signal);
+    clearTimeout(timeoutId);
     renderResults(data);
     updateMarkers(data, mapIsVisible);
-    console.log(data);
   } catch (err) {
+    clearTimeout(timeoutId);
+    if ((err as Error).name === "AbortError") return;
     showErrorState();
     console.error("Erro na API:", err);
   }
@@ -71,26 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.addEventListener("change", loadCafes);
   });
 
-  ["origin-filter", "cep-filter"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener("input", () => {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(loadCafes, 400);
-      });
-    }
-  });
-
   const nearMeBtn = document.getElementById("near-me-btn");
   if (nearMeBtn) nearMeBtn.addEventListener("click", getUserLocation);
 
   const clearFilters = document.getElementById("clear-filters");
   if (clearFilters) {
     clearFilters.addEventListener("click", () => {
-      (document.getElementById("global-search") as HTMLInputElement).value = "";
-      (document.getElementById("roaster-filter") as HTMLSelectElement).value =
-        "";
-      (document.getElementById("roast-filter") as HTMLSelectElement).value = "";
+      (
+        document.getElementById("global-search") as HTMLInputElement | null
+      )!.value = "";
+      (
+        document.getElementById("roaster-filter") as HTMLSelectElement | null
+      )!.value = "";
+      (
+        document.getElementById("roast-filter") as HTMLSelectElement | null
+      )!.value = "";
       const roasterLabel = document.getElementById("roaster-dropdown-label");
       if (roasterLabel) roasterLabel.textContent = "Todas as Torrefações";
       const roastLabel = document.getElementById("roast-dropdown-label");
@@ -100,6 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initCustomDropdowns();
+
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>(
+      "#retry-btn",
+    );
+    if (btn) loadCafes();
+  });
 
   const mapToggleBtn = document.getElementById("toggle-map-btn");
   const mapContainer = document.getElementById("map-container");

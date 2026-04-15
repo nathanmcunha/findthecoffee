@@ -31,12 +31,28 @@ postgres_data/
 gha-creds-*.json
 
 tailwindcss
-Locust_*.htmlNOTES.md
+Locust_*.html
+
+# Test artifacts
+.coverage
+coverage/
+backend/.coverage
+
+# Environment manager
+.envrc
+.envrcdirenv
+
+# Scraped data (not source)
+backend/five_roasters_beans.json
+
+# Scratch scripts
+backend/scrape_five_roasters.py
 
 .qwen/
 
 # Frontend build artifacts
 frontend/script.js
+frontend/script.js.map
 frontend/style.css
 frontend/esbuild
 frontend/tailwindcss

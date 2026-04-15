@@ -1,7 +1,7 @@
 import type { Bean, Cafe } from "./types.ts";
 
 function createSensoryBar(label: string, value: number | null): string {
-  if (!value) return "";
+  if (value === null || value === undefined) return "";
   let dots = "";
   for (let i = 1; i <= 5; i++) {
     dots += `<div class="w-3 h-1 rounded-full ${
@@ -18,7 +18,9 @@ function createSensoryBar(label: string, value: number | null): string {
 
 function renderGrainItem(bean: Bean, cafeId: string, idx: number): string {
   const id = `grain-${cafeId}-${bean.id}`;
-  const hasSensory = bean.acidity || bean.sweetness || bean.body;
+  const hasSensory = bean.acidity !== null ||
+    bean.sweetness !== null ||
+    bean.body !== null;
   const tastingNotes = bean.tasting_notes && bean.tasting_notes.length > 0
     ? bean.tasting_notes.join(", ")
     : null;
@@ -295,6 +297,9 @@ export function showErrorState(): void {
       <i data-lucide="alert-circle" class="w-10 h-10 text-error mx-auto mb-3"></i>
       <h3 class="text-lg font-medium text-on-surface">Erro ao carregar dados</h3>
       <p class="text-on-surface-variant mt-1 text-sm">O servidor backend está rodando?</p>
+      <button id="retry-btn" class="mt-4 px-6 py-2 rounded-full bg-primary text-surface-container-lowest font-medium text-sm hover:opacity-90 transition-opacity">
+        Tentar novamente
+      </button>
     </div>
   `;
   lucide.createIcons();
