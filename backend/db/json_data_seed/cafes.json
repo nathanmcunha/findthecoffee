@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Specialty Coffee House",
+    "location": "São Paulo, SP",
+    "inventory": ["Lógos", "Karpos", "Sítio Pica-Pau (cultivado sem agrotóxicos)"]
+  },
+  {
+    "name": "The Minimalist Brew",
+    "location": "Curitiba, PR",
+    "inventory": ["Novo Gesha", "Marzipan", "Flor de Laranjeira"]
+  }
+]
