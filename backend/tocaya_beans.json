@@ -1,0 +1,343 @@
+[
+  {
+    "name": "Edição especial: Gesha da Canastra",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Vinhoso",
+      "Corpo delicado",
+      "Limpo"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Ficha técnica: Gesha do Casa Brás, fermentado - colheita seletiva. Perfil: vinhoso, corpo delicado, limpo.  Conteúdo: 100g de café especial em grãos.  &amp;nbsp;",
+    "_price_brl": "170.",
+    "_sku": "T086",
+    "_image_url": "",
+    "_weights": [],
+    "_grind_types": [],
+    "_raw_slug": "edicao-especial-gesha-fermentado"
+  },
+  {
+    "name": "Rancho São Benedito",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Cítrico",
+      "Maracujá",
+      "Licoroso"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Cítrico, maracujá, licoroso.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "68.00",
+    "_sku": "T020",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "rancho-sao-benedito"
+  },
+  {
+    "name": "Sítio Pica-Pau (cultivado sem agrotóxicos)",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Chocolate ao leite",
+      "Redondo"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Chocolate ao leite, redondo.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "61.00",
+    "_sku": "T069",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Aeropress",
+      "Coado / Filtrado",
+      "Espresso",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "pica-pau"
+  },
+  {
+    "name": "Sítio Grotão",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Amêndoas",
+      "Caramelo"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Amêndoas, caramelo.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "52.00",
+    "_sku": "T090",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "sitio-grotao"
+  },
+  {
+    "name": "Sítio Peixoto",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Redondo",
+      "Chocolate"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Redondo, chocolate.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "50.00",
+    "_sku": "T057",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "sitio-peixoto"
+  },
+  {
+    "name": "Serra das Três Barras (novo lote)",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Limpo",
+      "Chocolate ao leite",
+      "Floral"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "limpo, chocolate ao leite, floral.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "61.00",
+    "_sku": "T004",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "serra-das-tres-barras"
+  },
+  {
+    "name": "Sítio Baixadão (cultivado sem agrotóxicos)",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Floral",
+      "Cítrico",
+      "Levemente frutado"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Floral, cítrico, levemente frutado.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "68.00",
+    "_sku": "T018",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "sitio-baixadao"
+  },
+  {
+    "name": "Sítio das Cabras",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Limpo",
+      "Frutas amarelas",
+      "Licoroso"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Limpo, frutas amarelas, licoroso.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "74.00",
+    "_sku": "T088",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "sitio-das-cabras"
+  },
+  {
+    "name": "Sítio Forquilha do Rio",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Toffee",
+      "Brittle de amêndoas",
+      "Macio"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Toffee, brittle de amêndoas, macio.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "61.00",
+    "_sku": "T013",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "forquilha-do-rio"
+  },
+  {
+    "name": "Café do Alpendre",
+    "roaster": "Tocaya",
+    "roast_level": null,
+    "origin": null,
+    "variety": null,
+    "processing": null,
+    "altitude": null,
+    "producer": null,
+    "farm": null,
+    "region": null,
+    "tasting_notes": [
+      "Doce",
+      "Redondo",
+      "Chocolate"
+    ],
+    "acidity": null,
+    "sweetness": null,
+    "body": null,
+    "_description": "Doce, redondo, chocolate.  P.S. Torramos em pequenos lotes toda semana e nunca enviamos grãos com mais de 6 dias da data da torra. Todos nossos cafés são colhidos, torrados, selecionados/catados (pós-torra) e embalados por seres humanos. 😉",
+    "_price_brl": "44.00",
+    "_sku": "T038",
+    "_image_url": "",
+    "_weights": [
+      "1-kg",
+      "250-g"
+    ],
+    "_grind_types": [
+      "Coado / Filtrado",
+      "Grão",
+      "Moka (Cafeteira Italiana)",
+      "Prensa Francesa"
+    ],
+    "_raw_slug": "cafe-do-alpendre"
+  }
+]
