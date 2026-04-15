@@ -121,4 +121,4 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_cafe_search_vector
     BEFORE INSERT OR UPDATE ON cafes
-    FOR EACH ROW EXECUTE FUNCTION update_cafe_search_vector();
+    For EACH ROW EXECUTE FUNCTION update_cafe_search_vector();
