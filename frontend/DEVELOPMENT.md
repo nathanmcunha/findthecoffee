@@ -28,43 +28,26 @@ export async function fetchCafes(filters: CafeFilters): Promise<Cafe[]> {
 
 ## Code Quality Tools
 
-### Deno Lint (Automated Pattern Enforcement)
-
-Lint and formatting tools are managed by **mise** (see `.mise.toml` `[tools]` section).
-
-```bash
-# Lint all TypeScript sources
-mise run js:lint
-
-# Auto-fix issues when possible
-deno lint frontend/src/ --fix
-```
-
-**Lint Rules Enforced:**
-- `no-explicit-any` - No `any` types
-- `prefer-const` - Prefer `const` over `let`
-- `no-var` - No `var` declarations
-- `no-unused-vars` - Remove unused variables
-- `require-await` - Mark async functions that don't use await
-- `no-console` - No `console.log` (use `warn`/`error` only)
-- `no-debugger` - No `debugger` statements
-- `eqeqeq` - Use `===` and `!==` always
-
 ### Type Checking
 
 ```bash
-# Strict type check with Deno (managed by mise)
-mise run ts:check
+# Strict type check with tsc
+mise run ts
 
-# Full check (lint + format + type)
+# Full JS check (type checking only)
 mise run js:check
 ```
 
 ### Formatting
 
+Formatting is handled by **pre-commit hooks** (see `.pre-commit-config.yaml`).
+
 ```bash
-# Format with Deno fmt (100 char width, 2-space indent)
-mise run js:format
+# Install hooks
+mise run hooks:install
+
+# Run hooks manually on all files
+pre-commit run --all-files
 ```
 
 ---
@@ -168,21 +151,33 @@ frontend/
 
 ## Development Workflow
 
+Open **two terminals** and run:
+
 ```bash
-# Start development (hot-reload enabled)
-mise run dev
+# Terminal 1 — Backend (starts DB + Flask with hot-reload)
+mise run up:backend
 
-# Run all checks before commit
-mise run js:check
+# Terminal 2 — Frontend (Vite dev server with HMR)
+mise run up:frontend
+```
 
-# Production build
+The frontend will be available at **http://localhost:3000** and proxies `/api` to the backend at **http://localhost:5000**.
+
+### Other useful commands
+
+```bash
+# Type-check TypeScript sources
+mise run ts
+
+# Production build (type check + Vite build)
 mise run build:prod
 
 # Clean build artifacts
 mise run clean
-```
 
-Frontend bundling now runs via `frontend/scripts/build.ts`, so `mise run js:build`/`js:watch` execute that Deno script (the watch task starts `deno --watch` over `frontend/src` and `frontend/input.css`, while `build:prod` adds `--minify --sourcemap`). The script downloads Tailwind CLI on the fly and fills `frontend/script.js`/`frontend/style.css` from the TypeScript sources.
+# Run backend tests
+mise run test
+```
 
 ---
 

@@ -30,50 +30,43 @@ spec:
         app: db
     spec:
       containers:
-      - name: postgres
-        image: postgres:16
-        env:
-        - name: POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: DB_NAME
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: coffee-secrets
-              key: POSTGRES_USER
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: coffee-secrets
-              key: POSTGRES_PASSWORD
-        ports:
-        - containerPort: 5432
-        resources:
-          limits:
-            cpu: "500m"
-            memory: "512Mi"
-          requests:
-            cpu: "250m"
-            memory: "256Mi"
-        livenessProbe:
-          exec:
-            command: ["pg_isready", "-U", "user", "-d", "coffeedb"]
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          exec:
-            command: ["pg_isready", "-U", "user", "-d", "coffeedb"]
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        volumeMounts:
-        - name: db-data
-          mountPath: /var/lib/postgresql/data
+        - name: postgres
+          image: postgres:18
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+            - name: env-config
+              mountPath: /docker-entrypoint-initdb.d/.env
+              subPath: .env
+          envFrom:
+            - configMapRef:
+                name: coffee-env-config
+          ports:
+            - containerPort: 5432
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "user", "-d", "coffeedb"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "user", "-d", "coffeedb"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
-      - name: db-data
-        persistentVolumeClaim:
-          claimName: db-pvc
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-pvc
+        - name: env-config
+          configMap:
+            name: coffee-env-config
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

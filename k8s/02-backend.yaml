@@ -31,41 +31,25 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
       - name: backend
         image: coffee-backend:latest
         imagePullPolicy: IfNotPresent
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: coffee-secrets
-              key: DATABASE_URL
-        - name: DB_HOST
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: DB_HOST
-        - name: DB_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: DB_PORT
-        - name: DB_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: DB_NAME
-        - name: FLASK_APP
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: FLASK_APP
-        - name: PYTHONPATH
-          valueFrom:
-            configMapKeyRef:
-              name: coffee-config
-              key: PYTHONPATH
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        volumeMounts:
+        - name: env-config
+          mountPath: /app/.env
+          subPath: .env
+        - name: tmp-volume
+          mountPath: /tmp
         ports:
         - containerPort: 5000
         resources:
@@ -87,3 +71,9 @@ spec:
             port: 5000
           initialDelaySeconds: 10
           periodSeconds: 10
+      volumes:
+      - name: env-config
+        configMap:
+          name: coffee-env-config
+      - name: tmp-volume
+        emptyDir: {}

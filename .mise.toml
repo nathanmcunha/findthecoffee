@@ -101,6 +101,3 @@ run = "python -m pytest backend/tests --cov=backend --cov-report=html --cov-repo
 description = "Start infra + backend via Docker Compose with hot-reload volumes"
 run = "podman compose -f docker-compose.yml -f docker-compose.override.yml up db migrate backend"
 
-[tasks.dev]
-description = "Start backend (Docker) + frontend (Vite dev server)"
-run = "bash scripts/start-dev.sh"

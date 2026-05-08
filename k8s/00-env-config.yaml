@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coffee-env-config
+  namespace: coffee-finder
+data:
+  .env: |
+    DB_HOST=db
+    DB_PORT=5432
+    DB_NAME=coffeedb
+    FLASK_APP=app
+    PYTHONPATH=/app
+    POSTGRES_USER=user
+    POSTGRES_PASSWORD=password
+    DATABASE_URL=postgresql://user:password@db:5432/coffeedb
